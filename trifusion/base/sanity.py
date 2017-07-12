@@ -29,6 +29,14 @@ except ImportError:
 
 def triseq_arg_check(arg):
 
+    if not arg.outfile and [x for x in arg.output_format
+                            if x in ["mcmctree", "gphocs", "ima2", "snapp"]]:
+        invalid_formats = [x for x in arg.output_format
+                            if x in ["mcmctree", "gphocs", "ima2", "snapp"]]
+        print_col("The following output formats can only be used with the"
+                  " concatenation operation (-o): {}".format(", ".join(
+                    invalid_formats)), RED)
+
     if arg.gcoder and "nexus" not in arg.output_format:
         print_col("Gap coding can only be performed for Nexus output format.",
                   RED)
@@ -89,12 +97,17 @@ def triseq_arg_check(arg):
 
 def post_aln_checks(arg, aln_obj):
 
-    if arg.consensus == ["IUPAC"] and aln_obj.sequence_code[0] != "DNA":
+    if arg.consensus == ["IUPAC"] and "Protein" in aln_obj.sequence_code:
         print_col("'IUPAC' option of the consensus operation can "
                   "only be performed on nucleotide alignments.", RED)
-    if arg.codon_filter and aln_obj.sequence_code[0] != "DNA":
+    if arg.codon_filter and "Protein" in aln_obj.sequence_code:
         print_col("The codon filter option (--codon-filter) can only be"
                   " performed on nucleotide alignments.", RED)
+    if len(aln_obj.sequence_code) > 1 and \
+            [x for x in arg.output_format if x in ["gphocs", "ima2", "snapp"]]:
+        l = [x for x in arg.output_format if x in ["gphocs", "ima2", "snapp"]]
+        print_col("The following selected output formats can only be used"
+                  " with nucleotide sequences: {}".format(", ".join(l)), RED)
     if aln_obj.bad_alignments:
         print_col("The following input files could not be read or are empty"
                   ": {}".format(" ".join(aln_obj.bad_alignments)), YELLOW)

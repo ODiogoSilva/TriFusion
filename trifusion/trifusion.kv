@@ -4016,7 +4016,7 @@
                         elif sd_filechooser.text == "zorro_dir" and txt_box.height == 0:\
                         app.save_file(sd_filechooser.path, idx = sd_filechooser.text, auto_close=False); root.cancel()
                         elif sd_filechooser.text == "ima2_popfile" and txt_box.height == 0:\
-                        app.save_file(sd_filechooser.selection[0], idx=sd_filechooser.text)
+                        app.save_file(sd_filechooser.selection[0], idx=sd_filechooser.text, auto_close=False); root.cancel()
                         elif sd_filechooser.text == "orto_report" and txt_box.height == 0:\
                         app.run_in_background(app.orto_generate_report, None, [sd_filechooser.path, "use_ns"], None, False, "Generating full report...")
                         elif sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
@@ -4154,7 +4154,7 @@
 <ModelSpinner>:
     bold: True
     text: "No model"
-    values: ("No model", "JC", "F81", "K2P", "HKY", "SYM", "GTR") if app.sequence_types == "DNA" else ("No model", "LG", "WAG", "DAYHOFF", "JTT", "MTREV", "CPREV", "VT", "BLOSUM62", "MTMAM")
+    values: ("No model", "JC", "F81", "K2P", "HKY", "SYM", "GTR")
     #background_normal: "data/backgrounds/model_bt1.png"
 
 <PartitionsDialog>:
@@ -4207,7 +4207,6 @@
             text: "No partition"
             markup: True
             bold: True
-            disabled: True if app.sequence_types != "DNA" else False
             option_cls: Factory.get("CodonSpinner")
             values: ("No partitions", "[color=ff5555ff]1[/color] + [color=37abc8ff]2[/color] + [color=71c837ff]3[/color]", "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]3[/color]", "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + 3)[/color]", "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]2[/color]")
 
@@ -4221,7 +4220,8 @@
         BoxLayout:
             spacing: 5
             id: model_bx
-            ModelSpinner
+            ModelSpinner:
+                id: model_spin
     Widget:
         size_hint_y: None
         height: 1
@@ -4410,12 +4410,12 @@
         orientation: "vertical"
         padding: 10
         Label:
+            id: msg
             size_hint_y: None
             height: 30
             text_size: self.size
             halign: "justify"
             valign: "center"
-            text: "The following selected output formats can only be used with the Concatenation main operation:"
         Label:
             id: fmts
             flist: None

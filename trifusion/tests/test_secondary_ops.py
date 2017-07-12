@@ -168,12 +168,8 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(concatenated_small_phy)
 
-        partition_obj = Partitions()
-        # In case the _partitions file is badly formatted or invalid, the
-        # exception will be returned by the read_from_file method.
-        partition_obj.read_from_file(concatenated_small_par[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
         self.aln_obj.concatenate()
-        self.aln_obj.alignments.values()[0].set_partitions(partition_obj)
         self.aln_obj.set_partition_from_alignment(
             self.aln_obj.alignments.values()[0], reset=True)
 

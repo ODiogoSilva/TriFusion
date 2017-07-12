@@ -693,27 +693,12 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             aln.update_active_alignments([rev_infile])
 
-            partition_obj = data.Partitions()
-            partition_obj.set_length(aln.size)
-
-            er = partition_obj.read_from_file(partitions_file)
+            er = aln.partitions.read_from_file(partitions_file)
 
             if er:
                 ns.exception = {
-                    "exception": ["Invalid partition file", e.value]}
+                    "exception": ["Invalid partition file", er.value]}
                 raise data.InvalidPartitionFile("")
-
-            # If there are no issues with the partitions file, set the new
-            # partitions
-            single_aln = aln.retrieve_alignment(rev_infile)
-            er = single_aln.set_partitions(partition_obj)
-            if er:
-                ns.exception = {
-                    "exception": ["Invalid partition file", er.value]
-                }
-                raise data.InvalidPartitionFile("")
-
-            aln.set_partition_from_alignment(single_aln, reset=True)
 
             aln.reverse_concatenate(table_in=table_in, table_out=table_out,
                                     ns=ns)

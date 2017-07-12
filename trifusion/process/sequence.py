@@ -827,7 +827,7 @@ class LookupDatabase(object):
 
             h = hash(c_args)
             self.c.execute("SELECT * FROM pw_table WHERE hash = ?"
-                           " AND seq_len = ?", (h, args[-1]))
+                           " AND seq_len = ?", (h, args[-2]))
             vals = self.c.fetchone()
             if vals:
                 return vals[2], vals[3]
@@ -835,7 +835,7 @@ class LookupDatabase(object):
                 value = self.func(*args)
                 h = hash(c_args)
                 self.c.execute("INSERT INTO pw_table VALUES (?, ?, ?, ?)",
-                               (h, args[-1], value[0], value[1]))
+                               (h, args[-2], value[0], value[1]))
                 return value
 
         else:
@@ -900,11 +900,20 @@ def check_data(func):
                           "gene_occupancy", "missing_data_distribution",
                           "missing_genes_average"]
 
+        # Plot methods that should not be allowed with mixed sequence types
+        # (e.g. protein and nucleotide)
+        no_mixing = ["characters_proportion",
+                     "characters_proportion_per_species"]
+
         # Calling outlier method with a single alignments should immediately
         # raise an exception
         if len(args[0].alignments) == 1:
             if func.__name__ in no_single_plot:
                 return {"exception": "single_alignment"}
+
+        if len(args[0].sequence_code) > 1:
+            if func.__name__ in no_mixing:
+                return {"exception": "no_missing"}
 
         res = func(*args, **kwargs)
 
@@ -2250,7 +2259,8 @@ class Alignment(Base):
 
         # Updating _partitions object
         self._partitions.add_partition(self.name, self.locus_length,
-                                       file_name=self.path)
+                                       file_name=self.path,
+                                       seq_type=self.sequence_code[0])
         
         fh.close()
 
@@ -2325,7 +2335,8 @@ class Alignment(Base):
 
         # Updating _partitions object
         self._partitions.add_partition(self.name, self.locus_length,
-                                       file_name=self.path)
+                                       file_name=self.path,
+                                       seq_type=self.sequence_code[0])
 
         fh.close()
 
@@ -2396,7 +2407,8 @@ class Alignment(Base):
                 # Add partition
                 self._partitions.add_partition("locus_{}".format(locus_c),
                                                locus_len,
-                                               file_name=self.path)
+                                               file_name=self.path,
+                                               seq_type=self.sequence_code[0])
                 
                 # Adding missing data
                 for tx in self._taxa_idx:
@@ -2575,7 +2587,11 @@ class Alignment(Base):
         # file, set a single partition
         if self._partitions.partitions == OrderedDict():
             self._partitions.add_partition(self.name, self.locus_length,
-                                           file_name=self.path)
+                                           file_name=self.path,
+                                           seq_type=self.sequence_code[0])
+        
+        if self.name not in self._partitions.partitions_type:
+            self._partitions.partitions_type[self.path] = self.sequence_code[0]
 
         fh.close()
 
@@ -2643,7 +2659,8 @@ class Alignment(Base):
 
         # Updating _partitions object
         self._partitions.add_partition(self.name, self.locus_length,
-                                       file_name=self.path)
+                                       file_name=self.path,
+                                       seq_type=self.sequence_code[0])
 
         fh.close()
 
@@ -3035,7 +3052,7 @@ class AlignmentList(Base):
         Records the number of filtered alignments by each individual filter type
         """
 
-        self.sequence_code = None
+        self.sequence_code = []
         """
         Tuple with the AlignmentList sequence code. Either ("DNA", "n") or
         ("Protein", "x")
@@ -3221,7 +3238,7 @@ class AlignmentList(Base):
 
         cur.execute("CREATE INDEX aux_idx ON aux(aln_idx)")
 
-    def _create_table(self, table_name, index=None, cur=None):
+    def _create_table(self, table_name, index=None, cur=None, add_cols=None):
         """Creates a new table in the database.
 
         Convenience method that creates a new table in the sqlite database.
@@ -3242,11 +3259,17 @@ class AlignmentList(Base):
         if not cur:
             cur = self.cur
 
+        if add_cols:
+            cols = "".join([", " + x for x in add_cols])
+        else:
+            cols = ""
+
         cur.execute("CREATE TABLE [{}]("
-                    "txId INT,"
-                    "taxon TEXT,"
-                    "seq TEXT,"
-                    "aln_idx INT)".format(table_name))
+                    "txId INT, "
+                    "taxon TEXT, "
+                    "seq TEXT, "
+                    "aln_idx INT"
+                    "{})".format(table_name, cols))
 
         if index:
             cur.execute("CREATE INDEX {} ON [{}]({})".format(
@@ -3584,14 +3607,16 @@ class AlignmentList(Base):
         self.non_alignments = []
         self.taxa_names = []
         self.shelved_taxa = []
+        self.shelved_idx = []
         self.path_list = []
         self._idx = 1
         self.size = 0
-        self.filtered_alignments = OrderedDict([("By minimum taxa", None),
-                                                ("By taxa", None),
-                                                ("By variable sites", None),
-                                                ("By informative sites", None)])
-        self.sequence_code = None
+        self.filtered_alignments = OrderedDict(
+            [("By minimum taxa", None),
+             ("By taxa", None),
+             ("By variable sites", None),
+             ("By informative sites", None)])
+        self.sequence_code = []
         self.summary_stats = {"genes": 0, "taxa": 0, "seq_len": 0, "gaps": 0,
                               "avg_gaps": [], "missing": 0, "avg_missing": [],
                               "variable": 0, "avg_var": [], "informative": 0,
@@ -3740,7 +3765,7 @@ class AlignmentList(Base):
         for aln_obj in self.alignments.values():
             aln_obj.shelve_taxa(self.shelved_taxa)
 
-    def format_list(self):
+    def format_list(self, aln_list=None, include_missing=False):
         """Returns list of unique sequence types from `Alignment` objects.
 
         Returns
@@ -3750,8 +3775,17 @@ class AlignmentList(Base):
             strings.
         """
 
-        return list(set([x.sequence_code[0] for x in
-                         self.alignments.values() if x]))
+        if aln_list:
+            alns = aln_list
+        else:
+            alns = self.alignments.keys()
+
+        if include_missing:
+            return list(set([tuple(x.sequence_code) for x in
+                             self.alignments.values() if x.path in alns]))
+        else:
+            return list(set([x.sequence_code[0] for x in
+                             self.alignments.values() if x.path in alns]))
 
     def _get_taxa_list(self, only_active=False):
         """Gets the global taxa list from all alignments.
@@ -3823,13 +3857,15 @@ class AlignmentList(Base):
                 self.partitions.add_partition(
                     k, locus_range=v[0], codon=v[1],
                     use_counter=True, file_name=alignment_obj.path,
-                    model_cls=aln_parts.models[k])
+                    model_cls=aln_parts.models[k],
+                    seq_type=alignment_obj.sequence_code[0])
         else:
             self.partitions.add_partition(
                 alignment_obj.name, use_counter=True,
                 file_name=alignment_obj.path,
                 length=alignment_obj.locus_length,
-                model_cls=aln_parts.models[alignment_obj.name])
+                model_cls=aln_parts.models[alignment_obj.name],
+                seq_type=alignment_obj.sequence_code[0])
 
         self.size = self.partitions.counter
 
@@ -3856,39 +3892,38 @@ class AlignmentList(Base):
             checked with the loaded alignments.
         """
 
-        for alignment_obj in alignment_obj_list:
+        for aln in alignment_obj_list:
 
             # Check for badly formatted alignments
-            if isinstance(alignment_obj.e, InputError):
-                self.bad_alignments.append(alignment_obj.path)
-            elif isinstance(alignment_obj.e,
+            if isinstance(aln.e, InputError):
+                self.bad_alignments.append(aln.path)
+            elif isinstance(aln.e,
                             AlignmentUnequalLength):
-                self.non_alignments.append(alignment_obj.path)
+                self.non_alignments.append(aln.path)
 
             # if not ignore_paths:
             if not ignore_paths:
-                if alignment_obj.path in [x.path for x in
-                                          self.alignments.values()]:
-                    self.duplicate_alignments.append(alignment_obj.name)
+                if aln.path in [x.path for x in self.alignments.values()]:
+                    self.duplicate_alignments.append(aln.name)
                 else:
                     # Get seq code
-                    if not self.sequence_code:
-                        self.sequence_code = alignment_obj.sequence_code
+                    if aln.sequence_code[0] not in self.sequence_code:
+                        self.sequence_code.append(aln.sequence_code[0])
 
-                    alignment_obj.store_aux_data()
+                    aln.store_aux_data()
 
-                    self.alignments[alignment_obj.path] = alignment_obj
-                    self.set_partition_from_alignment(alignment_obj)
+                    self.alignments[aln.path] = aln
+                    self.set_partition_from_alignment(aln)
             else:
                 # Get seq code
                 if not self.sequence_code:
-                    self.sequence_code = alignment_obj.sequence_code
+                    self.sequence_code = aln.sequence_code
 
-                alignment_obj.store_aux_data()
+                aln.store_aux_data()
 
-                self.alignments[alignment_obj.name] = alignment_obj
-                self.set_partition_from_alignment(alignment_obj)
-                # self.filename_list.append(alignment_obj.name)
+                self.alignments[aln.name] = aln
+                self.set_partition_from_alignment(aln)
+                # self.filename_list.append(aln.name)
 
         self.taxa_names = self._get_taxa_list()
 
@@ -3956,15 +3991,15 @@ class AlignmentList(Base):
             else:
 
                 # Get seq code
-                if not self.sequence_code:
-                    self.sequence_code = aln_obj.sequence_code
+                if aln_obj.sequence_code[0] not in self.sequence_code:
+                    self.sequence_code.append(aln_obj.sequence_code[0])
                 # Check for multiple sequence types. If True,
                 # raise Exception
-                elif self.sequence_code[0] != aln_obj.sequence_code[0]:
-                    raise MultipleSequenceTypes("Multiple sequence "
-                        "types detected: {} and {}".format(
-                            self.sequence_code[0],
-                            aln_obj.sequence_code[0]))
+                # elif self.sequence_code[0] != aln_obj.sequence_code[0]:
+                #     raise MultipleSequenceTypes("Multiple sequence "
+                #         "types detected: {} and {}".format(
+                #             self.sequence_code[0],
+                #             aln_obj.sequence_code[0]))
 
                 self.taxa_names.extend([x for x in aln_obj._taxa_idx.keys()
                                         if x not in self.taxa_names])
@@ -4163,7 +4198,7 @@ class AlignmentList(Base):
         # Here is where sqlite will do the heavy lifting of grouping sequences
         # from the same taxon across all alignments and then concatenating
         # them. It is important that the column that will be grouped has
-        # an index (for perfomance and memory reasons). While seqs are
+        # an index (for performance and memory reasons). While seqs are
         # grouped by txId, the GROUP_CONCAT() method is used to return
         # concatenated strings.
         for p, (idx, tx, seq, aln_idx) in enumerate(conc_cur.execute(
@@ -4187,10 +4222,16 @@ class AlignmentList(Base):
         self._correct_partitions()
 
         self._idx += 1
+
+        if len(self.sequence_code) > 1:
+            seq_type = ["mixed"]
+        else:
+            seq_type = [aln_obj.sequence_code[0]]
+
         aln = Alignment(table_out, sql_cursor=self.cur, sql_con=self.con,
                         taxa_idx=taxa_idx,
                         ignore_db_check=True, partitions=self.partitions,
-                        sequence_code=self.sequence_code,
+                        sequence_code=seq_type,
                         locus_length=locus_length,
                         db_idx=self._idx,
                         temp_dir=os.path.dirname(self.sql_path))
@@ -4209,8 +4250,8 @@ class AlignmentList(Base):
 
     def _correct_partitions(self):
 
+        # Correct for inactive alignments
         shelved_alns = [self.alignment_idx[x].path for x in self.shelved_idx]
-
         self.partitions.remove_partition(file_list=shelved_alns)
 
     def filter_min_taxa(self, min_taxa, ns=None, pbar=None):
@@ -4510,9 +4551,11 @@ class AlignmentList(Base):
 
                 prev_idx = aln_idx
 
+                aln = self.alignment_idx[aln_idx]
+
             # Condition where the sequence only has gaps
             if not seq.strip("-"):
-                seq = self.sequence_code[1] * len(seq)
+                seq = aln.sequence_code[1] * len(seq)
                 temp_cur.execute(
                     "INSERT INTO [{}] VALUES (?, ?, ?, ?)".format(
                         temp_table), (txId, taxon, seq, aln_idx))
@@ -4523,11 +4566,11 @@ class AlignmentList(Base):
             counter, reverse_counter = 0, -1
 
             while seq[counter] == "-":
-                seq[counter] = self.sequence_code[1]
+                seq[counter] = aln.sequence_code[1]
                 counter += 1
 
             while seq[reverse_counter] == "-":
-                seq[reverse_counter] = self.sequence_code[1]
+                seq[reverse_counter] = aln.sequence_code[1]
                 reverse_counter -= 1
 
             temp_cur.execute(
@@ -4588,7 +4631,7 @@ class AlignmentList(Base):
             # Calculating metrics
             gap_proportion = (float(cadd("-")) /
                               taxa_number) * float(100)
-            missing_proportion = (float(cadd(self.sequence_code[1])) /
+            missing_proportion = (float(cadd(aln_obj.sequence_code[1])) /
                                   taxa_number) * float(100)
             total_missing_proportion = gap_proportion + missing_proportion
 
@@ -4742,8 +4785,6 @@ class AlignmentList(Base):
         # Stores the active Alignment.path after the fileter
         active_alns = []
 
-        missing_symbols = [self.sequence_code[1], "-"]
-
         prev_idx = ""
         c = 1
         res = None
@@ -4752,6 +4793,10 @@ class AlignmentList(Base):
 
             # This happens when the alignment changes during the iteration.
             if prev_idx != aln_idx:
+
+                aln = self.alignment_idx[aln_idx]
+
+                missing_symbols = [aln.sequence_code[1], "-"]
 
                 if prev_idx:
                     # Get the range result from the previous alignment
@@ -4895,8 +4940,6 @@ class AlignmentList(Base):
         # Stores the active Alignment.path after the fileter
         active_alns = []
 
-        missing_symbols = [self.sequence_code[1], "-"]
-        
         prev_idx = ""
         c = 1
         res = None
@@ -4905,6 +4948,10 @@ class AlignmentList(Base):
 
             # This happens when the alignment changes during the iteration.
             if prev_idx != aln_idx:
+
+                aln = self.alignment_idx[aln_idx]
+
+                missing_symbols = [aln.sequence_code[1], "-"]
 
                 if prev_idx:
                     # Get the range result from the previous alignment
@@ -5266,7 +5313,7 @@ class AlignmentList(Base):
                 if prev_idx:
                     if len(master_gaps[prev_idx]):
                         aln_obj.restriction_range = "{}-{}".format(
-                            int(aln_obj.locus_length),
+                            int(aln_obj.locus_length) + 1,
                             len(master_gaps[prev_idx]) +
                             int(aln_obj.locus_length))
                         aln_obj.locus_length += len(master_gaps[prev_idx])
@@ -5287,7 +5334,7 @@ class AlignmentList(Base):
         if prev_idx:
             if len(master_gaps[aln_idx]):
                 aln_obj.restriction_range = "{}-{}".format(
-                    int(aln_obj.locus_length),
+                    int(aln_obj.locus_length) + 1,
                     len(master_gaps[aln_idx]) +
                     int(aln_obj.locus_length))
                 aln_obj.locus_length += len(master_gaps[prev_idx])
@@ -5300,8 +5347,6 @@ class AlignmentList(Base):
             table_out))
 
         self._reset_pipes(ns)
-
-        #TODO: must check binary gap generator
 
     @staticmethod
     def write_loci_correspondence(hap_dict, output_file, dest="./"):
@@ -5568,8 +5613,6 @@ class AlignmentList(Base):
         temp_table = ".consensus"
         self._create_table(temp_table, index=["conindex", "aln_idx"])
 
-        missing_symbols = [self.sequence_code[1], "-"]
-
         # The First sequence mode is unique in the sense that it does not
         # require an iteration over the columns of each alignment.
         if consensus_type == "First sequence":
@@ -5616,6 +5659,10 @@ class AlignmentList(Base):
 
                 if aln_idx != prev_idx:
 
+                    aln = self.alignment_idx[aln_idx]
+
+                    missing_symbols = [aln.sequence_code[1], "-"]
+
                     if prev_idx:
 
                         final_seq = "".join(consensus_seq)
@@ -5656,7 +5703,7 @@ class AlignmentList(Base):
 
                 # In case there is only missing/gap characters
                 if not column:
-                    consensus_seq.append(self.sequence_code[1])
+                    consensus_seq.append(aln.sequence_code[1])
                     continue
 
                 # Check for invariable without missing data
@@ -5677,7 +5724,7 @@ class AlignmentList(Base):
                     continue
 
                 elif consensus_type == "Soft mask":
-                    consensus_seq.append(self.sequence_code[1])
+                    consensus_seq.append(aln.sequence_code[1])
                     continue
 
                 elif consensus_type == "Remove":
@@ -5789,8 +5836,13 @@ class AlignmentList(Base):
         # Get corrected partition names for sqlite database
         part_map = self._get_part_names()
 
+        prev_idx = ""
         for p, (taxon, seq, aln_idx) in enumerate(
                 self.iter_alignments(table_in)):
+
+            if prev_idx != aln_idx:
+
+                aln = self.alignment_idx[aln_idx]
 
             self._update_pipes(ns, pbar, value=p + 1, ignore_sa=True,
                                msg="Processing taxon {}".format(taxon))
@@ -5809,7 +5861,7 @@ class AlignmentList(Base):
                         part_seq = seq[part_range[0][0]:
                                        part_range[0][1] + 1][i::3]
 
-                        if part_seq.replace(self.sequence_code[1], "") == "":
+                        if part_seq.replace(aln.sequence_code[1], "") == "":
                             part_idx += 1
                             continue
 
@@ -5828,7 +5880,7 @@ class AlignmentList(Base):
 
                     part_seq = seq[part_range[0][0]:part_range[0][1] + 1]
 
-                    if part_seq.replace(self.sequence_code[1], "") == "":
+                    if part_seq.replace(aln.sequence_code[1], "") == "":
                         part_idx += 1
                         continue
 
@@ -5896,7 +5948,7 @@ class AlignmentList(Base):
         self.all_alignments = alns
         self.alignment_idx = rev_aln_idx
 
-    def _get_part_names(self):
+    def _get_part_names(self, get_type=False):
         """Returns partition name strings compliant with sqlite database
 
         Returns
@@ -5907,7 +5959,13 @@ class AlignmentList(Base):
         # Get corrected partition names for sqlite database
         part_map = {}
         for name, _ in self.partitions:
-            part_map[name] = "".join([x for x in name if x.isalnum()])
+            if get_type:
+                fls = self.partitions.partitions_alignments[name]
+                seq_type = self.partitions.partitions_type[fls[0]]
+                part_map[name] = ["".join([x for x in name if x.isalnum()]),
+                                  seq_type]
+            else:
+                part_map[name] = "".join([x for x in name if x.isalnum()])
 
         return part_map
 
@@ -5971,7 +6029,7 @@ class AlignmentList(Base):
         return True
 
     def _get_partition_data(self, table_name, ns=None, pbar=None,
-                            overide_table=False):
+                            overide_table=False, seq_types=None):
         """
 
         Parameters
@@ -6029,11 +6087,13 @@ class AlignmentList(Base):
                              "taxon TEXT,"
                              "seq TEXT,"
                              "part_name TEXT,"
-                             "part INT,"
-                             "aln_idx INT)".format(partition_table))
+                             "part INT, "
+                             "aln_idx INT, "
+                             "part_type INT)".format(partition_table))
 
             self.cur.execute("CREATE INDEX partindex ON "
-                             "[{}](part, aln_idx)".format(partition_table))
+                             "[{}](part_type, part, aln_idx)".format(
+                partition_table))
 
         temp_cur = self.con.cursor()
 
@@ -6042,9 +6102,10 @@ class AlignmentList(Base):
         c = 1
 
         # Get corrected partition names for sqlite database
-        part_map = self._get_part_names()
+        part_map = self._get_part_names(get_type=True)
 
         part_lst = self.partitions.partitions
+        models = self.partitions.models
         if overide_table:
             self.partitions = Partitions()
 
@@ -6063,30 +6124,44 @@ class AlignmentList(Base):
 
             for name, part_range in part_lst.items():
 
-                name = part_map[name]
+                nm, _seq_type = part_map[name]
+                seq_type = 0 if _seq_type == "DNA" else 1
+                missing = "n" if _seq_type == "DNA" else "?"
 
-                if name not in self.partition_count:
-                    self.partition_count[name] = [[], 0]
+                if nm not in self.partition_count:
+                    self.partition_count[nm] = [[], 0]
 
                 part_seq = get_partition_seq(seq, part_range)
 
-                if part_seq.replace(self.sequence_code[1], "") == "" and \
+                if part_seq.replace(missing, "") == "" and \
                         not overide_table:
                     part_idx += 1
                     continue
 
                 if overide_table:
-                    if name not in self.partitions.partitions:
-                        self.partitions.add_partition(name,
-                                                      length=len(part_seq))
+                    if nm not in self.partitions.partitions:
+                        codons = part_lst[name][1] if part_lst[name][1] else\
+                            None
+                        self.partitions.add_partition(
+                            nm, length=len(part_seq), seq_type=_seq_type,
+                            model_cls=models[name], codon=codons)
 
                 temp_cur.execute(
                     "INSERT INTO [{}] "
-                    "VALUES (?, ?, ?, ?, ?, ?)".format(partition_table),
-                    (txId, taxon, part_seq, name, part_idx, aln_idx))
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)".format(partition_table),
+                    (txId, taxon, part_seq, nm, part_idx, aln_idx, seq_type))
                 part_idx += 1
-                self.partition_count[name][0].append(taxon)
-                self.partition_count[name][1] = len(part_seq)
+                self.partition_count[nm][0].append(taxon)
+                self.partition_count[nm][1] = len(part_seq)
+
+            # In case there are restriction data appended at the end of the
+            # alignment, add that in the end
+            if self.alignment_idx[aln_idx].restriction_range:
+                temp_cur.execute(
+                    "INSERT INTO [{}] "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)".format(partition_table),
+                    (txId, taxon, seq[self.size:], nm, part_idx,
+                     aln_idx, seq_type))
 
         if overide_table:
 
@@ -6097,10 +6172,25 @@ class AlignmentList(Base):
                 "(txId, taxon, seq, aln_idx) "
                 "SELECT txId, taxon, GROUP_CONCAT(seq, ''), aln_idx "
                 "FROM (SELECT txId, taxon, seq, part, aln_idx FROM [{}] "
-                "ORDER BY part)"
+                "ORDER BY part_type, part)"
                 "GROUP BY txId".format(table_name, partition_table))
 
+            # If sequence types has been provided, and has more than 1 element
+            # it means that the active partitions have mixed sequence types.
+            if seq_types:
+                if len(seq_types) > 1:
+                    self._sort_partitions_by_type()
+
         return True
+
+    def _sort_partitions_by_type(self):
+
+        self.partitions.partitions = \
+            self.partitions.sort_partitions(sort_types=True)
+
+        aln = self.alignments.values()[0]
+
+        aln.partitions = self.partitions
 
     def _setup_newfile(self, fh, aln_file, output_dir, suffix, output_file,
                        ns):
@@ -6221,20 +6311,71 @@ class AlignmentList(Base):
 
         # In case there is a concatenated alignment being written
         if not aln_obj.partitions.is_single() and partition_file:
+
+            # Create file object for partition file
             partition_file = open(output_file.split(".")[0]
                                   + "_part.File", "w")
+
+            parts = self.partitions.partitions
+            models = self.partitions.models
+
             for name, lrange in self.partitions:
-                # Get model from app if it exists and there are no codon
-                # positions
-                model = model_phylip if self.partitions.models[name] == \
-                                        [None] or len(
-                    self.partitions.models[name][1]) > 1 \
-                    else self.partitions.models[name][1][0]
-                partition_file.write("%s, %s = %s\n" % (
-                    model if model else
-                    self.sequence_code[0], name,
-                    "-".join([str(x + 1) for x in
-                              lrange[0]])))
+                # If lrange[1] has been defined it means that there are
+                # codon positions specified
+                if lrange[1]:
+                    # First check if there are linked codon models. This
+                    # information is accessible in the `models` attribute.
+                    if any(models[name][2]):
+                        # There are linked codon partitions. Use that
+                        # information as a list for the loop below.
+                        lst = models[name][2]
+                    else:
+                        # There are no linked codon partitions, or there are
+                        # no codon models specified.
+                        lst = lrange[1]
+
+                    for p, i in enumerate(lst):
+
+                        # This condition occurs when there are multiple
+                        # linked codon models (e.g. 1+2,3)
+                        if isinstance(i, str):
+                            # Corrected partition start
+                            start = [parts[name][1][int(x) - 1] for x in i]
+                            if len(i) > 1:
+                                # Set range for this linked codon partition
+                                rg = ", ".join(["{}-{}\\3".format(
+                                    x + 1, lrange[0][1] + 1) for x in start])
+                            else:
+                                # Set range for a normal codon partitions
+                                rg = "{}-{}\\3".format(
+                                    start[0] + 1, lrange[0][1] + 1)
+                        else:
+                            rg = "{}-{}\\3".format(i + 1, lrange[0][1] + 1)
+
+                        # Get model for codon partitions
+                        try:
+                            model = self.partitions.models[name][1][p]
+                        # If a model was not set for the current codon 
+                        # partition, fall back to the sequence type
+                        except IndexError:
+                            model = None
+
+                        model = model if model else \
+                            self.partitions.get_sequence_type(name)
+
+                        partition_file.write(
+                            "{}, {}_{} = {}\n".format(
+                                model, name, str(p), rg))
+
+                else:
+                    # Get model
+                    model = self.partitions.models[name][1][0]
+                    model = model if model else \
+                        self.partitions.partitions_type[name]
+                    partition_file.write(
+                        "{}, {} = {}-{}\n".format(
+                            model, name, lrange[0][0] + 1, lrange[0][1] + 1))
+
             partition_file.close()
 
     def _write_phylip(self, suffix, output_file, **kwargs):
@@ -6368,8 +6509,12 @@ class AlignmentList(Base):
                 p = 0
                 # Full gene _partitions
                 for name, lrange in self.partitions:
-                    # If there are codon _partitions, write those
+                    # If lrange[1] has been defined it means that there are
+                    # codon positions specified
                     if lrange[1]:
+                        # First check if there are linked codon models. This
+                        # information is accessible in the `models` attribute.
+
                         for i in lrange[1]:
                             fh.write("\tcharset %s_%s = %s-%s\\3;\n" %
                                            (name, i + 1, i + 1,
@@ -6388,23 +6533,69 @@ class AlignmentList(Base):
 
         # Write models, if any
         if use_nexus_models:
-            if any(aln_obj.partitions.models.values()[0][0]):
+            # Ignore this if no models have been specified
+            if any([x[1] for x in aln_obj.partitions.models.values()]):
 
                 fh.write("\nbegin mrbayes;\n")
-                i = 1
-                for name, models in self.partitions.models.items():
-                    if models[1]:
-                        for m in models[1]:
-                            if m:
-                                m_str = \
-                                    self.partitions._models["mrbayes"][m]
-                                if not aln_obj.partitions.is_single():
-                                    fh.write("applyto=({}) "
-                                             "lset ".format(i) +
-                                             " ".join(m_str) + "\n")
-                                else:
-                                    fh.write("lset " + " ".join(m_str) + "\n")
-                            i += 1
+
+                model_dic = aln_obj.partitions._models
+                linked_parts = []
+
+                part_idx = 1
+                for name in aln_obj.partitions.partitions:
+
+                    model_info = aln_obj.partitions.models[name]
+
+                    # When no models have been specified for the current
+                    # partition, skip it
+                    if not any(model_info[1]):
+                        part_idx += 1
+                        continue
+
+                    # Check if there are any linked models
+                    for i in model_info[2]:
+                        if len(i) > 1:
+                            linked_parts.append(
+                                ",".join([str(part_idx + int(x) - 1)
+                                          for x in i]))
+
+                    for p, m in enumerate(model_info[1]):
+                        # Get lset and prset commands for current model
+                        try:
+                            l_str = model_dic["mrbayes"][m]["lset"]
+                            pr_str = model_dic["mrbayes"][m]["prset"]
+                        except KeyError:
+                            continue
+
+                        # Determine to which partitions the models will be
+                        # applied to
+                        if any(model_info[2]):
+
+                            for i in model_info[2][p]:
+                                # Get part_idx
+                                cor_part = part_idx + (int(i) - 1)
+                                fh.write("lset applyto=({}) {};\n".format(
+                                    cor_part, l_str))
+                                fh.write("prset applyto=({}) {};\n".format(
+                                    cor_part, pr_str))
+                        else:
+                            l_str = model_dic["mrbayes"][m]["lset"]
+                            pr_str = model_dic["mrbayes"][m]["prset"]
+                            fh.write("lset applyto=({}) {};\n".format(
+                                part_idx, l_str))
+                            fh.write("prset applyto=({}) {};\n".format(
+                                part_idx, pr_str))
+
+                    part_idx += 3 if any(model_info[2]) else 1
+
+                # Unlink all partitions
+                fh.write("unlink statefreq=(all) revmat=(all) shape=(all)"
+                         " pinvar=(all) tratio=(all);\n")
+
+                for i in linked_parts:
+                    fh.write("link statefreq=({pl}) revmat=({pl}) shape=({pl})"
+                             " pinvar=({pl}) tratio=({pl});\n".format(pl=i))
+
                 fh.write("end;\n")
 
         # In case outgroup taxa are specified
@@ -6418,38 +6609,52 @@ class AlignmentList(Base):
                 fh.write("\nbegin mrbayes;\n\toutgroup %s\nend;\n" %
                                (" ".join(compliant_outgroups)))
 
-    @staticmethod
-    def _write_nexus_header(aln_obj, fh, gap, interleave, data_type=None,
-                            nchar=None):
+    def _write_nexus_header(self, aln_obj, fh, gap, interleave,
+                            data_type=None, nchar=None):
 
-        dtype = data_type if data_type else aln_obj.sequence_code[0]
-        nchar = nchar if nchar else aln_obj.locus_length
+        # Evaluate the datatype for the current alignment
+        if data_type:
+            dtype = data_type
+        elif len(set(aln_obj.partitions.partitions_type.values())) > 1:
+            dna_end = 0
+            for nm, vals in self.partitions:
+                tp = self.partitions.get_sequence_type(nm)
+                if tp == "Protein" and not dna_end:
+                    dna_end = vals[0][0]
+            prot_end = vals[0][1]
 
-        if aln_obj.restriction_range is not None:
-            fh.write("#NEXUS\n\nBegin data;\n\tdimensions "
-                     "ntax={} nchar={} ;\n\tformat datatype=mixed"
-                     "({}:1-{}, restriction:{}) interleave={} "
-                     "gap={} missing={} ;\n\tmatrix\n".format(
-                        len(aln_obj.taxa_idx) - len(aln_obj.shelved_taxa),
-                        aln_obj.locus_length,
-                        aln_obj.sequence_code[0],
-                        aln_obj.locus_length - 1,
-                        aln_obj.restriction_range,
-                        "yes" if interleave else "no",
-                        gap,
-                        aln_obj.sequence_code[1].upper()))
+            if aln_obj.restriction_range is not None:
+                dtype = "mixed(dna:1-{},protein:{}-{},restriction:{})".format(
+                    dna_end, dna_end + 1, prot_end + 1,
+                    aln_obj.restriction_range)
+
+            else:
+                dtype = "mixed(dna:1-{},protein:{}-{})".format(
+                    dna_end, dna_end + 1, prot_end + 1)
+
         else:
-            fh.write(
-                "#NEXUS\n\nBegin data;\n\tdimensions ntax={}"
-                " nchar={} ;\n\tformat datatype={} "
-                "interleave={} gap={} missing={} ;\n\t"
-                "matrix\n".format(
+
+            if aln_obj.restriction_range is not None:
+                lrg = aln_obj.partitions.partitions.values()[-1][0][1]
+                dtype = "mixed:(1-{},restriction:{})".format(
+                    lrg + 1, aln_obj.restriction_range)
+            else:
+                dtype = aln_obj.sequence_code[0]
+
+        if nchar:
+            nchar = nchar
+        else:
+            nchar = aln_obj.locus_length
+
+        fh.write("#NEXUS\n\nBegin data;\n\tdimensions "
+                 "ntax={} nchar={} ;\n\tformat datatype={} "
+                 "interleave={} "
+                 "gap={};\n\tmatrix\n".format(
                     len(aln_obj.taxa_idx) - len(aln_obj.shelved_taxa),
                     nchar,
                     dtype,
                     "yes" if interleave else "no",
-                    gap,
-                    aln_obj.sequence_code[1].upper()))
+                    gap))
 
     def _write_nexus(self, suffix, output_file, **kwargs):
 
@@ -6593,7 +6798,7 @@ class AlignmentList(Base):
         fh, _ = self._setup_newfile(None, aln, output_dir, suffix, output_file,
                                     ns)
 
-        missing_symbols = ["-", self.sequence_code[1]]
+        missing_symbols = ["-", "?", "n"]
         data = OrderedDict((taxon, []) for taxon in self.taxa_names)
 
         # Check if partition data has already been built in the database.
@@ -7014,11 +7219,16 @@ class AlignmentList(Base):
             "snapp": self._write_snapp
         }
 
-        if not self.partitions.is_contiguous() and \
-                [x for x in output_format if x in ["nexus", "phylip"]] and \
-                len(self.alignments) == 1:
+        # Check if there are mixed sequence types in the active alignments
+        seq_types = list(set(self.partitions.partitions_type.values()))
+
+        if (not self.partitions.is_contiguous() and
+                [x for x in output_format if x in ["nexus", "phylip"]] and
+                len(self.alignments) == 1) or \
+                (len(seq_types) > 1 and len(self.alignments) == 1):
             self.partition_data = self._get_partition_data(
-                table_name, overide_table=True)
+                table_name, overide_table=True, seq_types=seq_types)
+
 
         for fmt in output_format:
 
@@ -7195,7 +7405,7 @@ class AlignmentList(Base):
             col = Counter(col)
 
             # Get missing data and gaps
-            if self.sequence_code[1] in col:
+            if aln.sequence_code[1] in col:
                 self.summary_stats["missing"] += 1
                 cur_missing += 1
             if self.gap_symbol in col:
@@ -7204,7 +7414,7 @@ class AlignmentList(Base):
 
             # Get variability information
             # Filter missing data
-            for i in [self.sequence_code[1], self.gap_symbol]:
+            for i in [aln.sequence_code[1], self.gap_symbol]:
                 del col[i]
 
             # If it's only missing data, ignore
@@ -7328,7 +7538,7 @@ class AlignmentList(Base):
                     # Add data to taxa missing in the current alignment
                     missing = (x for x in self.taxa_names
                                if x not in aln.taxa_idx)
-                    for tx in missing:
+                    for _ in missing:
                         gaps_g.append(0)
                         missing_g.append(1)
                         data_g.append(0)
@@ -7438,6 +7648,13 @@ class AlignmentList(Base):
             # Get actual data
             actual_data = aln.locus_length - gaps - missing
             data_storage[taxon][2] += actual_data
+
+        if prev_idx:
+            # Add data to taxa missing in the current alignment
+            missing = (x for x in self.taxa_names
+                       if x not in aln.taxa_idx)
+            for tx in missing:
+                data_storage[tx][1] += aln.locus_length
 
         data_storage = OrderedDict(sorted(data_storage.items(),
                                           key=lambda x: x[1][1] + x[1][0],
@@ -7586,14 +7803,19 @@ class AlignmentList(Base):
                 self._update_pipes(ns, None, value=c)
                 c += 1
 
+                aln = self.alignment_idx[aln_idx]
+
                 prev_idx = aln_idx
 
             data_storage[taxon].append(
-                len(seq.replace("-", "").replace(self.sequence_code[1], "")))
+                len(seq.replace("-", "").replace(aln.sequence_code[1], "")))
 
         # Adapt y-axis label according to sequence code
-        seq_code = self.sequence_code[0]
-        ax_ylabel = "Size (bp)" if seq_code == "DNA" else "Size (residues)"
+        if len(self.sequence_code) > 1:
+            ax_ylabel = "Size"
+        else:
+            seq_code = self.sequence_code[0]
+            ax_ylabel = "Size (bp)" if seq_code == "DNA" else "Size (residues)"
 
         data_storage = OrderedDict(sorted(data_storage.items(), reverse=True,
                                    key=lambda t: np.mean(t[1])))
@@ -7638,8 +7860,11 @@ class AlignmentList(Base):
             data_storage.append(aln.locus_length)
 
         # Adapt y-axis label according to sequence code
-        seq_code = aln.sequence_code[0]
-        ax_xlabel = "Size (bp)" if seq_code == "DNA" else "Size (residues)"
+        if len(self.sequence_code) > 1:
+            ax_xlabel = "Size"
+        else:
+            seq_code = self.sequence_code[0]
+            ax_xlabel = "Size (bp)" if seq_code == "DNA" else "Size (residues)"
 
         return {"data": data_storage,
                 "title": "Average sequence size distribution",
@@ -7683,22 +7908,24 @@ class AlignmentList(Base):
                 self._update_pipes(ns, None, value=c)
                 c += 1
 
+                aln = self.alignment_idx[aln_idx]
+
                 prev_idx = aln_idx
 
             data_storage += Counter(
-                seq.replace("-", "").replace(self.sequence_code[1], ""))
+                seq.replace("-", "").replace(aln.sequence_code[1], ""))
 
         # Determine total number of characters
         chars = float(sum(data_storage.values()))
 
         # Valid characters list
-        valid_chars = dna_chars if self.sequence_code[0] == "DNA" else \
+        valid_chars = dna_chars if aln.sequence_code[0] == "DNA" else \
             list(aminoacid_table.keys())
 
         data, xlabels = zip(*[(float(x) / chars, y.upper()) for y, x in
                               data_storage.items() if y in valid_chars])
 
-        title = "Nucleotide proportions" if self.sequence_code[0] == "DNA" \
+        title = "Nucleotide proportions" if aln.sequence_code[0] == "DNA" \
             else "Amino acid proportions"
         ax_xlabel = "Nucleotide" if self.sequence_code[0] == "DNA" \
             else "Amino acid"
@@ -7748,12 +7975,14 @@ class AlignmentList(Base):
                 self._update_pipes(ns, None, value=c)
                 c += 1
 
+                aln = self.alignment_idx[aln_idx]
+
                 prev_idx = aln_idx
 
             data_storage[taxon] += Counter(
-                seq.replace("-", ""). replace(self.sequence_code[1], ""))
+                seq.replace("-", ""). replace(aln.sequence_code[1], ""))
 
-        legend = dna_chars if self.sequence_code[0] == "DNA" else \
+        legend = dna_chars if aln.sequence_code[0] == "DNA" else \
             list(aminoacid_table.keys())
 
         data = [[] for _ in legend]
@@ -7765,10 +7994,10 @@ class AlignmentList(Base):
 
         data = np.array(data)
 
-        title = "Nucleotide proportions" if self.sequence_code[0] == "DNA" \
+        title = "Nucleotide proportions" if aln.sequence_code[0] == "DNA" \
             else "Amino acid proportions"
 
-        ax_ylabel = "Nucleotide" if self.sequence_code[0] == "DNA" \
+        ax_ylabel = "Nucleotide" if aln.sequence_code[0] == "DNA" \
             else "Amino acid"
 
         return {"data": data,
@@ -7779,7 +8008,7 @@ class AlignmentList(Base):
                 "table_header": ["Taxon"] + legend}
 
     @LookupDatabase
-    def _get_similarity(self, seq1=None, seq2=None, aln_len=None):
+    def _get_similarity(self, seq1=None, seq2=None, aln_len=None, aln=None):
         """Gets the similarity between two strings and the effective length.
 
         Compares two sequences and calculates the number of similarities.
@@ -7811,9 +8040,9 @@ class AlignmentList(Base):
         seq1 = np.array(list(seq1))
         seq2 = np.array(list(seq2))
 
-        ef_len_ = (seq1 != self.sequence_code[1]) & \
+        ef_len_ = (seq1 != aln.sequence_code[1]) & \
             (seq1 != self.gap_symbol) & \
-            (seq2 != self.sequence_code[1]) & \
+            (seq2 != aln.sequence_code[1]) & \
             (seq2 != self.gap_symbol)
 
         sim_ = (seq1 == seq2) & ef_len_
@@ -7860,7 +8089,8 @@ class AlignmentList(Base):
                 self._check_killswitch(ns)
 
                 sim, total_len = self._get_similarity(seq1, seq2,
-                                                      aln.locus_length)
+                                                      aln.locus_length,
+                                                      aln)
 
                 if total_len:
                     aln_similarities.append(sim / total_len)
@@ -7918,7 +8148,8 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                sim, l = self._get_similarity(seq1, seq2, aln.locus_length)
+                sim, l = self._get_similarity(seq1, seq2, aln.locus_length,
+                                              aln)
                 if l:
                     data[taxa_pos[tx1]][taxa_pos[tx2]].append(sim / l)
 
@@ -7989,7 +8220,7 @@ class AlignmentList(Base):
                 self._check_killswitch(ns)
 
                 s, t = self._get_similarity("".join(seq1), "".join(seq2),
-                                            step)
+                                            step, aln_obj)
                 if t:
                     sim = s / t
                 else:
@@ -8128,7 +8359,8 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                s, t = self._get_similarity(seq1, seq2, aln.locus_length)
+                s, t = self._get_similarity(seq1, seq2, aln.locus_length,
+                                            aln)
                 if t:
                     aln_diff = t - s
                 else:
@@ -8249,8 +8481,6 @@ class AlignmentList(Base):
         data_length = []
         data_inf = []
 
-        missing_symbols = [self.sequence_code[1], self.gap_symbol]
-
         prev_idx = ""
         for column, aln_idx in self.iter_columns():
 
@@ -8265,6 +8495,8 @@ class AlignmentList(Base):
 
                 aln = self.alignment_idx[aln_idx]
                 informative_sites = 0
+
+                missing_symbols = [aln.sequence_code[1], self.gap_symbol]
 
                 prev_idx = aln_idx
 
@@ -8316,11 +8548,11 @@ class AlignmentList(Base):
 
         # Make check for sequence type consistency here for TriStats.py. In
         # TriFusion the check is made before calling this method
-        if self.sequence_code[0] != "DNA":
+        if len(self.sequence_code) > 1 and self.sequence_code[0] != "DNA":
             return {"exception": InvalidSequenceType}
 
         data = []
-        missing_symbols = [self.sequence_code[1], self.gap_symbol]
+        missing_symbols = [self.sequence_code[0], self.gap_symbol]
 
         self._set_pipes(ns, None, total=len(self.alignments))
         c = 0
@@ -8598,7 +8830,7 @@ class AlignmentList(Base):
 
                 prev_idx = aln_idx
 
-            gn_data += seq.count(self.sequence_code[1]) + \
+            gn_data += seq.count(aln.sequence_code[1]) + \
                 seq.count(self.gap_symbol)
 
         if prev_idx:
@@ -8671,7 +8903,7 @@ class AlignmentList(Base):
                 
                 prev_idx = aln_idx
 
-            m_data = float(seq.count(self.sequence_code[1]) +
+            m_data = float(seq.count(aln.sequence_code[1]) +
                            seq.count(self.gap_symbol)) / float(total_len)
             data[taxon].append(m_data)
 
@@ -8734,7 +8966,6 @@ class AlignmentList(Base):
 
         data_points = []
         data_labels = []
-        missing_symbols = [self.sequence_code[1], self.gap_symbol]
 
         prev_idx = ""
         for column, aln_idx in self.iter_columns():
@@ -8751,6 +8982,8 @@ class AlignmentList(Base):
                 c += 1
 
                 aln = self.alignment_idx[aln_idx]
+
+                missing_symbols = [aln.sequence_code[1], self.gap_symbol]
 
                 segregating_sites = 0
                 
@@ -8830,7 +9063,8 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                s, t_len = self._get_similarity(seq1, seq2, aln.locus_length)
+                s, t_len = self._get_similarity(seq1, seq2, aln.locus_length,
+                                                aln)
 
                 if t_len:
                     s_data = (t_len - s) / t_len
@@ -8984,7 +9218,7 @@ class AlignmentList(Base):
 
                 prev_idx = aln_idx
 
-            s_data = len(seq.replace(self.sequence_code[1], "").
+            s_data = len(seq.replace(aln.sequence_code[1], "").
                          replace(self.gap_symbol, ""))
             data[taxon].append(s_data)
 

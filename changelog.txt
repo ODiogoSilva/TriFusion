@@ -1,4 +1,4 @@
-# Changelog for upcoming 0.6.0 release
+# Changelog for upcoming 1.0.0 release
 
 ## New Features
 
@@ -43,6 +43,10 @@ writing the output files [0.5.23].
 - Added error message when there are no output formats after ignoring
 formats non-compliant with conversion/reverse concatenation [0.5.25].
 - Added custom SNAPP output format extension [0.5.25].
+- Added support for multiple sequence types (DNA and protein) for almost all
+operations [0.5.30].
+- Major improvement of the partition and substitution model setup in
+certain output file formats (Nexus and Phylip) [0.5.30].
 
 ### Statistics
 
@@ -88,6 +92,8 @@ concatenation. [0.5.11]
 - Fixed several issues of the partition scheme when using custom file data sets
 [0.5.18].
 - Fixed issue with some Nexus badly formatted input files [0.5.19].
+- Fixed several issues with partition and substitution model setup in Nexus
+and Phylip output formats [0.5.30].
 
 ### Statistics
 

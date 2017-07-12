@@ -26,18 +26,18 @@ from collections import OrderedDict
 
 class PartitionException(Exception):
     def __init__(self, value):
-        self.value = value
+        self.message = value
 
     def __str__(self):
-        return repr(self.value)
+        return repr(self.message)
 
 
 class InvalidPartitionFile(Exception):
     def __init__(self, value):
-        self.value = value
+        self.message = value
 
     def __str__(self):
-        return repr(self.value)
+        return repr(self.message)
 
 
 class Partitions(object):
@@ -89,22 +89,28 @@ class Partitions(object):
     """
 
     # GTR
-    _models["mrbayes"]["GTR"] = ["nst=6", "statefreqpr=dirichlet(1,1,1,1)"]
+    _models["mrbayes"]["GTR"] = {"lset": "nst=6",
+                                 "prset": "statefreqpr=dirichlet(1,1,1,1)"}
 
     # SYM
-    _models["mrbayes"]["SYM"] = ["nst=6", "statefreqpr=fixed(equal)"]
+    _models["mrbayes"]["SYM"] = {"lset": "nst=6",
+                                 "prset": "statefreqpr=fixed(equal)"}
 
     # HKY
-    _models["mrbayes"]["HKY"] = ["nst=2", "statefreqpr=dirichlet(1,1,1,1)"]
+    _models["mrbayes"]["HKY"] = {"lset": "nst=2",
+                                 "prset": "statefreqpr=dirichlet(1,1,1,1)"}
 
     # K2P
-    _models["mrbayes"]["K2P"] = ["nst=2", "statefreqpr=fixed(equal)"]
+    _models["mrbayes"]["K2P"] = {"lset": "nst=2",
+                                 "prset": "statefreqpr=fixed(equal)"}
 
     # F81
-    _models["mrbayes"]["F81"] = ["nst=1", "statefreqpr=dirichlet(1,1,1,1)"]
+    _models["mrbayes"]["F81"] = {"lset": "nst=1",
+                                 "prset": "statefreqpr=dirichlet(1,1,1,1)"}
 
     # JC
-    _models["mrbayes"]["JC"] = ["nst=1", "statefreqpr=fixed(equal)"]
+    _models["mrbayes"]["JC"] = {"lset": "nst=1",
+                                "prset": "statefreqpr=fixed(equal)"}
 
     def __init__(self):
 
@@ -165,7 +171,11 @@ class Partitions(object):
 
             partitions_alignments = {"PartitionA": ["FileA.fas"],
                                      "PartitionB": ["FileB.fas", "FileC.fas"]}
+        """
 
+        self.partitions_type = OrderedDict()
+        """
+        Stores the sequence type of each partition.
         """
 
         self.alignments_range = OrderedDict()
@@ -184,7 +194,8 @@ class Partitions(object):
         The first element is a list that may contain the substitution model
         parameters for up to three subpartitions, the second element is also
         a list with the corresponding names of the substitution models and
-        the third list will store any links between models
+        the third list will store any links between models. It is important
+        that the links list contains only strings and not integers.
         """
 
         self.merged_files = {}
@@ -231,9 +242,6 @@ class Partitions(object):
             If True, the `alignments_range` attribute will not be reset.
         """
 
-        # if cur:
-        #     cur.execute("DELETE FROM aux")
-
         self.partitions = OrderedDict()
         self.partitions_index = []
         self.partitions_alignments = OrderedDict()
@@ -241,6 +249,7 @@ class Partitions(object):
         self.counter = 0
         if not keep_alignments_range:
             self.alignments_range = OrderedDict()
+            self.partitions_type = OrderedDict()
 
     def _sort_partitions(self):
 
@@ -318,7 +327,7 @@ class Partitions(object):
 
         return partition_format
 
-    def read_from_file(self, partitions_file):
+    def read_from_file(self, partitions_file, no_aln_check=False):
         """Parses partitions from file
 
         This method parses a file containing partitions. It supports
@@ -332,15 +341,16 @@ class Partitions(object):
         ----------
         partitions_file : str
             Path to partitions file.
+        no_aln_check : bool
+            Checks consistency with previously set partitions. Set to True
+            to disable this check (usually when reading a partition file
+            for a mock/empty Partition object).
 
         Raises
         ------
         PartitionException
             When one partition definition cannot be parsed.
         """
-
-        # Resets previous partitions (except alignments_range)
-        self.reset(keep_alignments_range=True)
 
         # Get the format of the partition file
         self.partition_format = self._get_file_format(partitions_file)
@@ -387,7 +397,7 @@ class Partitions(object):
                                 partition_range = [int(pr[0]) - 1,
                                                    self.partition_length - 1]
                             else:
-                                raise PartitionException(
+                                return PartitionException(
                                     "The length of the locus must be "
                                     "provided when partitions are "
                                     "defined using '.' notation to "
@@ -400,7 +410,7 @@ class Partitions(object):
                         try:
                             file_name = \
                                 [x for x, y in self.alignments_range.items() if
-                                 y[0] <= partition_range[0] < y[1]][0]
+                                 y[0] <= partition_range[0] < y[1]]
                         except IndexError:
                             file_name = None
                     else:
@@ -428,6 +438,26 @@ class Partitions(object):
 
         # Sort partition ranges according to the first element of the range
         temp_ranges.sort(key=lambda part: part[2][0])
+
+        for _, file_name, _ in temp_ranges:
+
+            try:
+                seq_type = set([self.partitions_type[x] for x in file_name])
+                if len(seq_type) > 1:
+                    return InvalidPartitionFile(
+                        "The range of the defined partitions must have the "
+                        "same sequence type (e.g. protein or nucleotide)")
+            except TypeError:
+                pass
+
+        if not no_aln_check:
+            if temp_ranges[-1][2][-1] != self.partitions.values()[-1][0][1]:
+                return InvalidPartitionFile(
+                    "The complete range of the partition file does not match"
+                    " the current alignment set")
+
+        # Resets previous partitions (except alignments_range)
+        self.reset(keep_alignments_range=True)
 
         for name, file_name, part_range in temp_ranges:
             # Add information to partitions storage
@@ -482,7 +512,7 @@ class Partitions(object):
                 try:
                     file_name = \
                         [x for x, y in self.alignments_range.items() if
-                         y[0] <= partition_range[0] < y[1]][0]
+                         y[0] <= partition_range[0] < y[1]]
                 except IndexError:
                     file_name = None
             else:
@@ -583,7 +613,7 @@ class Partitions(object):
 
     def add_partition(self, name, length=None, locus_range=None, codon=False,
                       use_counter=False, file_name=None, model_cls=None,
-                      auto_correct_name=True):
+                      auto_correct_name=True, seq_type=None):
         """Adds a new partition.
 
         Adds a new partition providing the length or the range of current
@@ -641,7 +671,8 @@ class Partitions(object):
         if length:
             # Add to or update alignments_range attribute. This will store the
             # original range of the alignment
-            if file_name:
+            if file_name and (isinstance(file_name, unicode) or
+                                  isinstance(file_name, str)):
                 if file_name in self.alignments_range:
                     current_range = [self.counter, self.counter + (length - 1)]
                     # If start position is earlier than before, update
@@ -657,14 +688,20 @@ class Partitions(object):
             # Add partition to index list
             self.partitions_index.append([name, 0])
             # Add partition to alignment list
-            try:
-                self.partitions_alignments[name].append(file_name if file_name
-                                                        else name)
-            except KeyError:
-                self.partitions_alignments[name] = [file_name if file_name else
-                                                    name]
+            if isinstance(file_name, list):
+                self.partitions_alignments[name] = file_name
+            else:
+                try:
+                    self.partitions_alignments[name].append(
+                        file_name if file_name else name)
+                except KeyError:
+                    self.partitions_alignments[name] = [
+                        file_name if file_name else name]
             # Create empty model attribute for a single partition
-            self.models[name] = [[[]], [None], []]
+            if model_cls:
+                self.models[name] = model_cls
+            else:
+                self.models[name] = [[[]], [None], []]
 
             self.partitions[name] = [(self.counter,
                                       self.counter + (length - 1)), codon]
@@ -680,7 +717,8 @@ class Partitions(object):
 
             # Add to or update alignments_range attribute. This will store the
             # original range of the alignment
-            if file_name:
+            if file_name and (isinstance(file_name, unicode) or
+                                  isinstance(file_name, str)):
                 if file_name in self.alignments_range:
                     if locus_range[0] < self.alignments_range[file_name][0]:
                         self.alignments_range[file_name][0] = locus_range[0]
@@ -746,18 +784,29 @@ class Partitions(object):
                 else:
                     # Add partition to index list
                     self.partitions_index.append([name, 0])
-                try:
-                    self.partitions_alignments[name].append(file_name if
-                                                            file_name else name)
-                except KeyError:
-                    self.partitions_alignments[name] = [file_name if file_name
-                                                        else name]
+
+                if isinstance(file_name, list):
+                    self.partitions_alignments[name] = file_name
+                else:
+                    try:
+                        self.partitions_alignments[name].append(
+                            file_name if file_name else name)
+                    except KeyError:
+                        self.partitions_alignments[name] = [
+                            file_name if file_name else name]
 
                 self.partitions[name] = [(locus_range[0], locus_range[1]),
                                          codon]
 
                 self.counter = locus_range[1] + 1
                 self.partition_length = locus_range[1] + 1
+
+        fl_name = file_name if file_name else name
+        if isinstance(fl_name, list):
+            for fl in fl_name:
+                self.partitions_type[fl] = seq_type
+        else:
+            self.partitions_type[fl_name] = seq_type
 
     def _remove_routine(self, part_name):
         """
@@ -794,29 +843,7 @@ class Partitions(object):
         for i in nm:
             del self.partitions[i]
 
-        new_dic = OrderedDict()
-
-        counter = 0
-        for p, (nm, vals) in enumerate(self.partitions.items()):
-
-            # Check if the starting position of the next partition is the
-            # same as the counter. If so, add the vals to the new dict.
-            # Else, correct the ranges based on the counter
-            if vals[0][0] == counter:
-                new_dic[nm] = vals
-                counter = vals[0][1] + 1
-            else:
-                # Get lenght of the partition
-                part_len = vals[0][1] - vals[0][0]
-                # Create corrected range
-                part_range = (counter, counter + part_len)
-                # Correct codon position start if any
-                if vals[1]:
-                    codon = [counter, counter + 1, counter + 2]
-                else:
-                    codon = False
-                new_dic[nm] = [part_range, codon]
-                counter = counter + part_len + 1
+        new_dic = self.sort_partitions()
 
         return new_dic
 
@@ -1047,6 +1074,69 @@ class Partitions(object):
 
         self._sort_partitions()
 
+    def get_sequence_type(self, name):
+
+        ref_fl = self.partitions_alignments[name][0]
+
+        return self.partitions_type[ref_fl]
+
+    def sort_partitions(self, part_list=None, sort_types=False):
+        """Sorts partitions according to a list of partition names
+
+        Parameters
+        ----------
+        part_list : list
+            List with partition names.
+        """
+
+        if sort_types:
+
+            part_storage = []
+            for nm in self.partitions:
+                ref_aln = self.partitions_alignments[nm][0]
+                seq_type = self.partitions_type[ref_aln]
+
+                part_storage.append((nm, 0 if seq_type == "DNA" else 1))
+
+            part_storage = sorted(part_storage, key=lambda i: i[1])
+
+            lst = [x[0] for x in part_storage]
+
+        else:
+            lst = part_list if part_list else self.partitions.items()
+
+        new_dic = OrderedDict()
+        counter = 0
+        for p, res in enumerate(lst):
+
+            if sort_types:
+                vals = self.partitions[res]
+                nm = res
+            else:
+                nm = res[0]
+                vals = res[1]
+
+            # Check if the starting position of the next partition is the
+            # same as the counter. If so, add the vals to the new dict.
+            # Else, correct the ranges based on the counter
+            if vals[0][0] == counter:
+                new_dic[nm] = vals
+                counter = vals[0][1] + 1
+            else:
+                # Get lenght of the partition
+                part_len = vals[0][1] - vals[0][0]
+                # Create corrected range
+                part_range = (counter, counter + part_len)
+                # Correct codon position start if any
+                if vals[1]:
+                    codon = [counter, counter + 1, counter + 2]
+                else:
+                    codon = False
+                new_dic[nm] = [part_range, codon]
+                counter = counter + part_len + 1
+
+        return new_dic
+
     def update_deleted_partition(self, file_list):
 
         for fl in file_list:
@@ -1104,7 +1194,7 @@ class Partitions(object):
 
         Parameters
         ----------
-        p : list
+        params : list
             List of prset/lset parameters
 
         Returns
@@ -1140,8 +1230,14 @@ class Partitions(object):
         # Get list with partitions to be changed
         if apply_all:
             plist = [x for x in self.partitions]
+
         else:
             plist = [partition]
+
+        # Get the sequence type of the provided partition. If apply_all
+        # is set to True, only the partitions with the same seq type will
+        # be changed
+        seq_type = self.get_sequence_type(partition)
 
         # Replace "No model" string with None
         models = [None if x == "No model" else x for x in models]
@@ -1151,19 +1247,25 @@ class Partitions(object):
             # If the current partition was previously defined as having codon
             # partitions, revert it
             for p in plist:
-                if self.partitions[p][1]:
-                    self.partitions[p][1] = False
-                self.models[p][1] = models
+                if self.get_sequence_type(p) == seq_type:
+                    if self.partitions[p][1]:
+                        self.partitions[p][1] = False
+                    self.models[p][1] = models
+                    if any(self.models[p][2]):
+                        self.models[p][2] = []
 
         # Set codon models
         else:
             for p in plist:
-                # Change the partition in self.partitions to have codon
-                # partitions
-                st_idx = self.partitions[p][0][0]
-                self.partitions[p][1] = [st_idx + x for x in range(3)]
-                self.models[p][1] = models
-                self.models[p][2] = links
+                if self.get_sequence_type(p) == seq_type:
+                    # Change the partition in self.partitions to have codon
+                    # partitions
+                    st_idx = self.partitions[p][0][0]
+                    self.partitions[p][1] = [st_idx + x for x in range(3)]
+                    self.models[p][1] = models
+                    self.models[p][2] = links
+
+
 
     def write_to_file(self, output_format, output_file, model="LG"):
         """Writes partitions to a file.

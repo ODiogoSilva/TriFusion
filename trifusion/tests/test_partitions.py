@@ -58,7 +58,8 @@ class PartitonsTest(ExpectingTestCase):
             os.makedirs(temp_dir)
 
         self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
-        self.aln_obj.partitions.reset(cur=self.aln_obj.cur)
+        self.aln_obj.partitions.reset(cur=self.aln_obj.cur,
+                                      keep_alignments_range=True)
 
     def tearDown(self):
 
@@ -68,25 +69,29 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_read_from_nexus(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.assertEqual(len(self.aln_obj.partitions.partitions), 7)
 
     def test_read_from_phylip(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_par[0],
+                                               no_aln_check=True)
 
         self.assertEqual(len(self.aln_obj.partitions.partitions), 7)
 
     def test_bad_partitions_phy(self):
 
-        e = self.aln_obj.partitions.read_from_file(partition_bad_phy[0])
+        e = self.aln_obj.partitions.read_from_file(partition_bad_phy[0],
+                                                   no_aln_check=True)
 
         self.assertTrue(isinstance(e, InvalidPartitionFile))
 
     def test_unsorted_part_phylip(self):
 
-        self.aln_obj.partitions.read_from_file(partition_unsorted_phy[0])
+        self.aln_obj.partitions.read_from_file(partition_unsorted_phy[0],
+                                               no_aln_check=True)
 
         data = [self.aln_obj.partitions.partitions.keys(),
                 self.aln_obj.partitions.counter]
@@ -99,7 +104,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_phylip_dot_notation(self):
 
-        self.aln_obj.partitions.read_from_file(partition_dot_not[0])
+        self.aln_obj.partitions.read_from_file(partition_dot_not[0],
+                                               no_aln_check=True)
 
         data = [self.aln_obj.partitions.partitions.keys(),
                 self.aln_obj.partitions.counter]
@@ -112,7 +118,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_nexus_dot_notation(self):
 
-        self.aln_obj.partitions.read_from_file(dot_notation_nex[0])
+        self.aln_obj.partitions.read_from_file(dot_notation_nex[0],
+                                               no_aln_check=True)
 
         data = [self.aln_obj.partitions.partitions.keys(),
                 self.aln_obj.partitions.counter]
@@ -125,7 +132,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_bad_dot_notation(self):
 
-        e = self.aln_obj.partitions.read_from_file(bad_dot_notation_nex[0])
+        e = self.aln_obj.partitions.read_from_file(bad_dot_notation_nex[0],
+                                                   no_aln_check=True)
 
         self.assertTrue(isinstance(e, InvalidPartitionFile))
 
@@ -139,7 +147,8 @@ class PartitonsTest(ExpectingTestCase):
 
         self.aln_obj.partitions.reset(keep_alignments_range=True)
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_par[0],
+                                               no_aln_check=True)
 
         res = self.aln_obj.partitions.get_partition_names()
 
@@ -150,7 +159,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_add_duplicate_name(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_par[0],
+                                               no_aln_check=True)
 
         self.assertRaises(PartitionException,
                           self.aln_obj.partitions.add_partition(
@@ -158,7 +168,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_get_partition_names(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_par[0],
+                                               no_aln_check=True)
 
         res = self.aln_obj.partitions.get_partition_names()
 
@@ -170,7 +181,7 @@ class PartitonsTest(ExpectingTestCase):
     def test_get_partition_names_withCodon(self):
 
         self.aln_obj.partitions.read_from_file(
-            concatenated_smallCodon_parNex[0])
+            concatenated_smallCodon_parNex[0], no_aln_check=True)
 
         res = self.aln_obj.partitions.get_partition_names()
 
@@ -216,7 +227,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_remove_partition_from_name(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
         self.aln_obj.partitions.remove_partition("BaseConc3.fas")
 
         # Check keys from _partitions, partitions_alignment and models
@@ -243,8 +255,10 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_remove_partition_from_file(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
-        self.aln_obj.partitions.remove_partition(file_name="BaseConc3.fas")
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
+        self.aln_obj.partitions.remove_partition(
+            file_name=join("trifusion/tests/data/", "BaseConc3.fas"))
 
         # Check keys from _partitions, partitions_alignment and models
         key_data = [list(self.aln_obj.partitions.partitions.keys()),
@@ -270,7 +284,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_change_name(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.aln_obj.partitions.change_name("BaseConc1.fas", "OtherName")
 
@@ -303,7 +318,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_merge_partitions(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.aln_obj.partitions.merge_partitions(
             ["BaseConc1.fas", "BaseConc2.fas", "BaseConc3.fas", "BaseConc4.fas",
@@ -317,7 +333,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_split_partition(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.aln_obj.partitions.split_partition("BaseConc1.fas",
                                                 [(0, 50), (51, 84)],
@@ -352,7 +369,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_merge_and_split(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.aln_obj.partitions.merge_partitions(
             ["BaseConc1.fas", "BaseConc2.fas", "BaseConc3.fas"], "new_part")
@@ -370,7 +388,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_merge_and_custom_split1(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.aln_obj.partitions.merge_partitions(
             ["BaseConc1.fas", "BaseConc2.fas", "BaseConc3.fas"], "new_part")
@@ -383,12 +402,15 @@ class PartitonsTest(ExpectingTestCase):
                     self.aln_obj.partitions.partitions_alignments["two"]]
 
         self.assertEqual(key_data,
-                         [['BaseConc1.fas'],
-                          ['BaseConc1.fas', 'BaseConc3.fas', 'BaseConc2.fas']])
+                         [[join('trifusion/tests/data/', 'BaseConc1.fas')],
+                          [join('trifusion/tests/data/', x) for x in
+                           ['BaseConc3.fas', 'BaseConc2.fas',
+                            'BaseConc1.fas']]])
 
     def test_merge_and_custom_split2(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.aln_obj.partitions.merge_partitions(
             ["BaseConc1.fas", "BaseConc2.fas", "BaseConc3.fas"], "new_part")
@@ -401,8 +423,9 @@ class PartitonsTest(ExpectingTestCase):
                     self.aln_obj.partitions.partitions_alignments["two"]]
 
         self.assertEqual(key_data,
-                         [['BaseConc1.fas'],
-                          ['BaseConc3.fas', 'BaseConc2.fas']])
+                         [[join('trifusion/tests/data/','BaseConc1.fas')],
+                          [join('trifusion/tests/data/', x) for x in
+                           ['BaseConc3.fas', 'BaseConc2.fas']]])
 
     def test_concat_custom_fileset_from_phy_partfile(self):
 
@@ -533,7 +556,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_set_model(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.aln_obj.partitions.set_model("BaseConc1.fas", ["GTR"])
 
@@ -549,7 +573,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_set_model_all(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.aln_obj.partitions.set_model("BaseConc1.fas", ["GTR"],
                                           apply_all=True)
@@ -566,7 +591,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_set_model_codon(self):
 
-        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
+                                               no_aln_check=True)
 
         self.aln_obj.partitions.set_model("BaseConc1.fas", ["GTR", "SYM"],
                                           links=["12", "3"],

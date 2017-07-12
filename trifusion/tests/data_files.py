@@ -142,6 +142,11 @@ alternative_missing = [
     "trifusion/tests/data/alternative_missing3.fasta"
 ]
 
+mixed_seq_type = [
+    "trifusion/tests/data/protein_no_missing.fas",
+    "trifusion/tests/data/BaseConc1.phy"
+]
+
 protein_no_missing = [
     "trifusion/tests/data/protein_no_missing.fas"
 ]

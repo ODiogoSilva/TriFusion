@@ -2,7 +2,7 @@
 
 Begin data;
 	dimensions ntax=10 nchar=2 ;
-	format datatype=integer interleave=yes gap=- missing=N ;
+	format datatype=integer interleave=yes gap=-;
 	matrix
 Seq10	00
 Seq9	00

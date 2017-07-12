@@ -4482,6 +4482,19 @@ class TriFusionApp(App):
             return self.dialog_floatcheck(
                 "A partition named %s already exists." % name,
                 t="error")
+    
+        # Get alignment files to check if they can be merged
+        alns = []
+        for p_name in self.active_partitions:
+            alns.extend(
+                self.alignment_list.partitions.partitions_alignments[p_name])
+
+        seq_types = self.alignment_list.format_list(alns)
+
+        if len(seq_types) > 1:
+            return self.dialog_floatcheck(
+                "Cannot merge partitions with different sequence type "
+                "(e.g. nucleotide and protein)", t="error")
 
         self.alignment_list.partitions.merge_partitions(
             self.active_partitions, name)
@@ -4600,11 +4613,16 @@ class TriFusionApp(App):
         :param partition_file: string, path to partition file
         """
 
-        self.alignment_list.partitions.read_from_file(partition_file)
+        er = self.alignment_list.partitions.read_from_file(partition_file)
+
+        if er:
+            self.dismiss_popup()
+            return self.dialog_warning("Invalid partition file",
+                                       "{}".format(er.message))
 
         # Clear partitions
         self.root.ids.partition_sl.clear_widgets()
-        #C Clear partition button storage
+        # Clear partition button storage
         self.sp_partition_bts = []
         # Re-populate partitions
         self.populate_partitions()
@@ -4713,11 +4731,12 @@ class TriFusionApp(App):
             models = []
             links = []
             for wgt in model_spiners:
-                models.extend([wgt.text] * len(wgt.id))
+                models.extend([wgt.text])
                 links.append(wgt.id)
 
             links, models = [list(x) for x in zip(
                 *sorted(zip(links, models), key=lambda pair: pair[0]))]
+
             self.alignment_list.partitions.set_model(
                 part_name, models, links, apply_all=apply_all)
 
@@ -4924,17 +4943,30 @@ class TriFusionApp(App):
         part_name = [bt.text for ebt, _, bt in
                      zip(*[iter(displayed_partitions)] * 3)
                      if ebt.id == btx.id][0]
+
         part_obj = self.alignment_list.partitions
         content.ids.partition_name.text = part_name
         content.original_name = part_name
 
         # Get partition length
-        part_range = (y[0] for x, y in self.alignment_list.partitions
-                      if x == part_name)
+        part_range = (y[0] for x, y in part_obj if x == part_name)
         part_len = sum([x[1] - x[0] + 1 for x in flatter(part_range)])
-        content.ids.partition_lenght.text = "{}bp".format(part_len)
+        content.ids.partition_lenght.text = "{}".format(part_len)
 
-        # If there are codon partitions
+        seq_type = self.alignment_list.format_list(
+            aln_list=part_obj.partitions_alignments[part_name])[0]
+
+        if seq_type == "DNA":
+            content.ids.codon_spin.disabled = False
+            content.ids.model_spin.values =  \
+                ("No model", "JC", "F81", "K2P", "HKY", "SYM", "GTR")
+        else:
+            content.ids.codon_spin.disabled = True
+            content.ids.model_spin.values = \
+                ("No model", "LG", "WAG", "DAYHOFF", "JTT", "MTREV", "CPREV",
+                 "VT", "BLOSUM62", "MTMAM")
+
+            # If there are codon partitions
         if part_obj.partitions[part_name][1]:
             if not part_obj.models[part_name][2]:
                 content.ids.codon_spin.text = content.ids.codon_spin.\
@@ -9204,7 +9236,7 @@ class TriFusionApp(App):
         part_obj = Partitions()
         part_obj.set_length(aln_obj.locus_length)
 
-        er = part_obj.read_from_file(self.partitions_file)
+        er = part_obj.read_from_file(self.partitions_file, no_aln_check=True)
 
         if not er:
             return
@@ -9728,7 +9760,7 @@ class TriFusionApp(App):
 
         return True, corrected_val
 
-    def dialog_invalid_formats(self, fmt_list):
+    def dialog_invalid_formats(self, msg, fmt_list):
         """Warning dialog when selecting invalid formats for main operation
 
         Dialog issued when selecting invalid output formats for the selected
@@ -9737,6 +9769,7 @@ class TriFusionApp(App):
 
         content = InvalidFormatsWarning(cancel=self.dismiss_popup)
 
+        content.ids.msg.text = msg
         content.ids.fmts.flist = fmt_list
 
         self.show_popup(title="Invalid output formats", content=content,
@@ -9756,6 +9789,7 @@ class TriFusionApp(App):
         if not self.main_operations["concatenation"]:
             # List of concatenation only formats.
             concatenation_only = ["mcmctree", "gphocs", "ima2", "snapp"]
+            # List of DNA seq type only formats
 
             # If concatenation has NOT been specified, check if the any of the
             # concatenation only formats was specified. If so, launch a warning
@@ -9764,7 +9798,17 @@ class TriFusionApp(App):
                                if x in concatenation_only]
 
             if invalid_formats:
-                return self.dialog_invalid_formats(invalid_formats)
+                return self.dialog_invalid_formats(
+                    "The following selected output formats can only be used "
+                    "with the Concatenation main operation:", invalid_formats)
+
+        dna_only = ["gphocs", "ima2", "snapp"]
+        invalid_dna_format = [x for x in self.output_formats if x in dna_only]
+        if "Protein" in self.alignment_list.sequence_code and \
+                invalid_dna_format:
+            return self.dialog_invalid_formats(
+                "The following selected output formats can only be used "
+                "with nucleotide sequences:", invalid_dna_format)
 
         if not self.output_formats:
             return self.dialog_floatcheck("No output formats have been "
@@ -10232,6 +10276,12 @@ class TriFusionApp(App):
                     self.dialog_floatcheck(
                         "Selected plot cannot be executed on single "
                         "alignments", t="error")
+                elif plot_data["exception"] == "no_missing":
+                    self.screen.ids.plot_content.clear_widgets()
+                    self.dialog_floatcheck(
+                        "The selected plot cannot be executed on a data"
+                        " set with mixed sequence types (e.g. protein and"
+                        " nucleotides)", t="error")
 
                 self.screen.ids.footer_box.clear_widgets()
                 self.populate_stats_footer(["NA", "NA"])

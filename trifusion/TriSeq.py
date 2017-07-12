@@ -104,7 +104,7 @@ def main_parser(arg, alignment_list):
     if arg.partition_file is not None and not alignment_list:
         # Initializing Partitions instance and reading partitions file
         partition = data.Partitions()
-        partition.read_from_file(arg.partition_file)
+        partition.read_from_file(arg.partition_file, no_aln_check=True)
         if partition.partition_format == "nexus":
             partition.write_to_file("raxml", outfile, model_phy)
         else:
@@ -145,17 +145,9 @@ def main_parser(arg, alignment_list):
     # If a partitions file was provided, and there is only a single input file,
     # try to associate the partitions.
     if len(alignment_list) == 1 and arg.partition_file:
-        aln = alignments.alignments.values()[0]
-        # Initializing and reading partition file
-        partition = data.Partitions()
-        er = partition.read_from_file(arg.partition_file)
+        er = alignments.partitions.read_from_file(arg.partition_file)
         if er:
             print_col("Invalid partitions file.", RED)
-        # Updating alignment _partitions
-        er = aln.set_partitions(partition)
-        if er:
-            print_col("Partitions file inconsistent with alignment.", RED)
-        alignments.set_partition_from_alignment(aln, reset=True)
 
     post_aln_checks(arg, alignments)
 
@@ -205,13 +197,9 @@ def main_parser(arg, alignment_list):
             raise ArgumentError("Only one input file allowed for reverse "
                                 "concatenation")
         if arg.reverse:
-            aln = alignments.alignments.values()[0]
-            # Initializing and reading partition file
-            partition = data.Partitions()
-            partition.read_from_file(arg.reverse)
-            # Updating alignment _partitions
-            aln.set_partitions(partition)
-            alignments.set_partition_from_alignment(aln, reset=True)
+            er = alignments.partitions.read_from_file(arg.reverse)
+            if er:
+                print_col("Invalid partitions file.", RED)
 
         alignments.reverse_concatenate(pbar=pbar)
 

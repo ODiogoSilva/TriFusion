@@ -54,6 +54,25 @@ class LoadAlignmentsTest(unittest.TestCase):
         self.aln_obj.con.close()
         shutil.rmtree(temp_dir)
 
+    def test_dna_load(self):
+
+        self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
+
+        self.assertEqual(["DNA"], self.aln_obj.sequence_code)
+
+    def test_protein_load(self):
+
+        self.aln_obj = AlignmentList(protein_no_missing, sql_db=sql_db)
+
+        self.assertEqual(["Protein"], self.aln_obj.sequence_code)
+
+    def test_mixed_type_load(self):
+
+        self.aln_obj = AlignmentList(mixed_seq_type, sql_db=sql_db)
+
+        self.assertEqual(["DNA", "Protein"],
+                         sorted(self.aln_obj.sequence_code))
+
     def test_class_instance(self):
 
         self.aln_obj = AlignmentList([], sql_db=sql_db)
@@ -140,31 +159,41 @@ class LoadAlignmentsTest(unittest.TestCase):
 
         self.aln_obj = AlignmentList(alternative_missing, sql_db=sql_db)
 
-        self.assertEqual(self.aln_obj.sequence_code[1], "?")
+        aln = self.aln_obj.alignments.values()[0]
+
+        self.assertEqual(aln.sequence_code[1], "?")
 
     def test_dna_missing_default(self):
 
         self.aln_obj = AlignmentList(single_dna, sql_db=sql_db)
 
-        self.assertEqual(self.aln_obj.sequence_code[1], "n")
+        aln = self.aln_obj.alignments.values()[0]
+
+        self.assertEqual(aln.sequence_code[1], "n")
 
     def test_protein_missing_default(self):
 
         self.aln_obj = AlignmentList(protein_no_missing, sql_db=sql_db)
 
-        self.assertEqual(self.aln_obj.sequence_code[1], "x")
+        aln = self.aln_obj.alignments.values()[0]
+
+        self.assertEqual(aln.sequence_code[1], "x")
 
     def test_dna_missing_eval(self):
 
         self.aln_obj = AlignmentList(concatenated_medium_nexus, sql_db=sql_db)
 
-        self.assertEqual(self.aln_obj.sequence_code[1], "n")
+        aln = self.aln_obj.alignments.values()[0]
+
+        self.assertEqual(aln.sequence_code[1], "n")
 
     def test_protein_missing_eval(self):
 
         self.aln_obj = AlignmentList(protein_normal_missing, sql_db=sql_db)
 
-        self.assertEqual(self.aln_obj.sequence_code[1], "x")
+        aln = self.aln_obj.alignments.values()[0]
+
+        self.assertEqual(aln.sequence_code[1], "x")
 
     def test_non_ascii_taxon_names(self):
 
