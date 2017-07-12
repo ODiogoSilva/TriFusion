@@ -5799,8 +5799,15 @@ class TriFusionApp(App):
 
         # Grab selection from selected items in the sidepanel
         else:
-            selection = self.active_taxa_list if idx == "Taxa" else \
-                [basename(x) for x in self.active_file_list]
+            if idx == "Taxa":
+                selection = self.active_taxa_list
+            else:
+                if self.active_file_list:
+                    selection = [basename(x) for x in self.active_file_list]
+                elif self.active_proteome_files:
+                    selection = [basename(x) for x in
+                                 self.active_proteome_files]
+
             selection_idx = [x + "X" for x in selection]
 
         if idx == "Taxa":
