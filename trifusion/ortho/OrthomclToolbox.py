@@ -425,6 +425,9 @@ class GroupLight(object):
         if not os.path.exists(dest) and not outfile:
             os.makedirs(dest)
 
+        if not os.path.exists(join(dest, "header_correspondance")):
+            os.makedirs(join(dest, "header_correspondance"))
+
         if shared_namespace:
             shared_namespace.act = shared_namespace.msg = "Creating database"
             # Stores sequences that could not be retrieved
@@ -510,8 +513,10 @@ class GroupLight(object):
                 # Open file
                 if not outfile:
                     cl_name = fields[0]
-                    output_handle = open(os.path.join(dest, cl_name) + ".fas",
-                                         "w")
+                    oname = join(dest, cl_name)
+                    mname = join(dest, "header_correspondance", cl_name)
+                    output_handle = open(oname + ".fas", "w")
+                    map_handle = open(mname + "_headerMap.csv", "w")
 
                 seqs = fields[-1].split()
                 for i in seqs:
@@ -524,8 +529,15 @@ class GroupLight(object):
                     # for all groups. If not, it will represent an individual
                     # group file
                     try:
-                        output_handle.write(">{}\n{}\n".format(vals[0],
-                                                               vals[1]))
+                        if not outfile:
+                            tx_name = vals[0].split("|")[0]
+                            output_handle.write(">{}\n{}\n".format(tx_name,
+                                                                   vals[1]))
+                            map_handle.write("{}; {}\n".format(vals[0],
+                                                               tx_name))
+                        else:
+                            output_handle.write(">{}\n{}\n".format(vals[0],
+                                                                   vals[1]))
                     except TypeError:
                         pass
 
@@ -1463,8 +1475,6 @@ class MultiGroups(object):
         for i in group1_list:
             if i in group2_list:
                 counter += 1
-
-        print(counter)
 
 
 class MultiGroupsLight(object):

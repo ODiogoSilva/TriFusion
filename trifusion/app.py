@@ -4053,7 +4053,7 @@ class TriFusionApp(App):
         if list(bad_proteomes.values()) != [[], [], []]:
             msg = ""
             if bad_proteomes["invalid"]:
-                msg += "The following files are in invalid format:\n%s" \
+                msg += "The following files are invalid:\n%s" \
                        "\n\n" % ", ".join(bad_proteomes["invalid"])
             if bad_proteomes["no_fasta"]:
                 msg += "The following files are not in FASTA format:\n%s" \
@@ -7939,14 +7939,15 @@ class TriFusionApp(App):
                 ns.counter += 1
 
             data = getattr(active_group_light, command)(fig_dir)
-            fig, lgd, _ = bar_plot(**data)
+            if data["data"]:
+                fig, lgd, _ = bar_plot(**data)
 
-            plot_file = join(fig_dir, command + ".png")
-            if lgd:
-                fig.savefig(plot_file, bbox_extra_artists=(lgd,),
-                            bbox_inches="tight", dpi=200)
-            else:
-                fig.savefig(plot_file, bbox_inches="tight", dpi=200)
+                plot_file = join(fig_dir, command + ".png")
+                if lgd:
+                    fig.savefig(plot_file, bbox_extra_artists=(lgd,),
+                                bbox_inches="tight", dpi=200)
+                else:
+                    fig.savefig(plot_file, bbox_inches="tight", dpi=200)
 
         html = HtmlTemplate(out_dir, "Orthology report", orthology_plots)
         html.write_file()
@@ -7974,21 +7975,31 @@ class TriFusionApp(App):
         else:
             groups_objs = self.ortho_groups
 
+        # Update excluded taxa
+        excluded_taxa = groups_objs.excluded_taxa[self.active_group_name]
+        self.screen.ids.header_content.excluded_taxa = excluded_taxa
+
         # Update slider max values
         self.screen.ids.gn_spin.max = \
             max(groups_objs.max_extra_copy.values())
-        self.screen.ids.sp_spin.max = groups_objs.species_number[0]
+        sp_max = groups_objs.species_number[0] - len(excluded_taxa)
+        self.screen.ids.sp_spin.max = sp_max
+    
+        if excluded_taxa and not self.screen.ids.header_content.original_filt:
+            self.dialog_floatcheck(
+                "{} taxa were excluded from the analysis according to "
+                "the previous filter.".format(len(excluded_taxa)), t="check")
 
         # Update initial slider values
         if not self.screen.ids.header_content.original_filt:
             self.screen.ids.gn_spin.value = self.orto_max_gene
-            self.screen.ids.sp_spin.value = self.orto_min_sp if \
-                self.orto_min_sp != 3 else groups_objs.species_number[0]
+            sp_val = self.orto_min_sp if self.orto_min_sp != 3 else \
+                groups_objs.species_number[0]
+            self.screen.ids.sp_spin.value = sp_val if sp_val <= sp_max \
+                else sp_max
 
         self.screen.ids.header_content.original_filt = \
             [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
-        self.screen.ids.header_content.excluded_taxa = \
-            groups_objs.excluded_taxa[self.active_group_name]
 
         # Set group object for screen. This property will be used when
         # changing  which filters should be displayed in the compare
@@ -8091,11 +8102,15 @@ class TriFusionApp(App):
 
         # Exclude taxa, if any
         if exclude_taxa:
-            # If all taxa were excluded issue a warning and do nothing more
-            if set(exclude_taxa) == set(self.active_group.species_list):
+            if len(exclude_taxa) == (len(self.active_group.species_list) +
+                                       len(self.active_group.excluded_taxa)):
                 return self.dialog_floatcheck(
-                    "At least one taxon must be included.",
-                    t="warning")
+                    "At least one taxon must be included.", t="warning")
+
+            active_tx = len(set(active_group.species_list) -
+                            set(exclude_taxa))
+            if active_tx > self.screen.ids.sp_spin.value:
+                self.screen.ids.sp_spin.value = active_tx
 
         # Setting filters for the first time
         if not filt and not exclude_taxa:
@@ -8131,7 +8146,7 @@ class TriFusionApp(App):
         if not plot_data["data"]:
             self.screen.ids.plot_content.children[0].clear_widgets()
             return self.dialog_floatcheck("There is not data to plot with"
-                                          "the current filters", t="error")
+                                          " the current filters", t="error")
 
         # Update excluded taxa attribute
         self.screen.ids.header_content.excluded_taxa = \

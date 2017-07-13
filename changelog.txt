@@ -20,6 +20,17 @@ a great number of files [0.5.20].
 according to the starting position of the position [0.5.23].
 - Added EPS, PS, JPEG and TIFF options as figure formats [0.5.33].
 
+### Orthology
+
+- Protein and nucleotide sequences exported by the Orthology module now have
+the same header for each taxa. This makes it easier for downstream processing
+of aligning concatenating, etc. [0.5.34].
+- Added a backstage output file that makes the correspondance between the
+unique headers of ortholog groups and their original header in the proteome
+file [0.5.34].
+- Added informative popups when comparing different group files with active
+filters and/or excluded taxa [0.5.34].
+
 ### Process
 
 - Refactored concatenation procedure increasing performance up to 29x in run
@@ -82,6 +93,8 @@ section [0.5.24].
 indefinitely [0.5.28].
 - Fixed minor issue with ortholog filter settings in explore section when
 proteome files are loaded [0.5.29].
+- Fixed issue where plots with no data would prevent the generation of a full
+report [0.5.34].
 
 ### Process
 

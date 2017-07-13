@@ -18,6 +18,7 @@
 #  MA 02110-1301, USA.
 
 
+import json
 import warnings
 
 # Suppress import warnings
@@ -119,7 +120,7 @@ def check_unique_field(proteome_file, verbose=False, nm=None):
         os.path.basename(proteome_file)))
 
 
-def prep_fasta(proteome_file, code, unique_id, verbose=False, nm=None):
+def prep_fasta(proteome_file, code, unique_id, dest, verbose=False, nm=None):
 
     if verbose:
         print_col("\t Preparing file for USEARCH", GREEN, 1)
@@ -127,8 +128,13 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False, nm=None):
     # Storing header list to check for duplicates
     header_list = []
 
-    # Storing dictionary with header and sequence for later use
-    seq_storage = {}
+    # Get json with header mappings, if exists
+    json_f = join(dest, "backstage_files", "header_mapping.json")
+    if os.path.exists(json_f):
+        with open(json_f) as fh:
+            header_mapping = json.load(fh)
+    else:
+        header_mapping = {}
 
     # Will prevent writing
     lock = True
@@ -147,21 +153,21 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False, nm=None):
             if line not in header_list:
                 fields = line.split("|")
                 unique_str = fields[unique_id].replace(" ", "_")
-                seq_storage["%s|%s" % (code, unique_str)] = ""
+                header_mapping["%s|%s" % (code, unique_str)] = line.strip()
                 header_list.append(line)
                 file_out.write(">%s|%s\n" % (code, unique_str))
                 lock = True
             else:
                 lock = False
         elif lock:
-            seq_storage["%s|%s" % (code, unique_str)] += line.strip()
             file_out.write(line)
 
     # Close file handles:
     file_in.close()
     file_out.close()
 
-    return seq_storage
+    with open(json_f, "w") as fh:
+        json.dump(header_mapping, fh)
 
 
 def adjust_fasta(file_list, dest, nm=None):
@@ -199,13 +205,22 @@ def adjust_fasta(file_list, dest, nm=None):
 
         # Adjust fasta
         # stg = prep_fasta(proteome, code_name, unique_id)
-        prep_fasta(proteome, code_name, unique_id, nm)
+        prep_fasta(proteome, code_name, unique_id, dest, nm)
 
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
                             ".fasta"
 
         shutil.move(proteome.split(".")[0] + "_mod.fas",
                     join(cf_dir, protome_file_name))
+
+    json_f = join(dest, "backstage_files", "header_mapping.json")
+    header_f = join(dest, "backstage_files", "header_mapping.csv")
+    if os.path.exists(json_f):
+        with open(json_f) as fh, open(header_f, "w") as ofh:
+            header_map = json.load(fh)
+
+            for k, v in header_map.items():
+                ofh.write("{}; {}\n".format(k, v))
 
 
 def filter_fasta(min_len, max_stop, db, dest, nm=None):

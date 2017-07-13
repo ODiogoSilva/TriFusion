@@ -114,6 +114,8 @@ def execute(out_dir):
 
         cur = con.cursor()
 
+        cur.execute("PRAGMA SYNCHRONOUS = OFF")
+
         createSimilarSequencesTable(cur)
         createInParalogTable(cur)
         createOrthologTable(cur)

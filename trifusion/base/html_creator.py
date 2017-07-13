@@ -97,7 +97,7 @@ class HtmlTemplate(object):
         .dropdown-content {\n\
             display: none;\n\
             position: absolute;\n\
-            background-color: #FF0000;\n\
+            background-color: grey;\n\
             min-width: 15em;\n\
             max-width: 30em;\n\
             padding: 12px 16px;\n\
