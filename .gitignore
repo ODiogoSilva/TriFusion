@@ -22,3 +22,5 @@ trifusion/benchmarks_mem.py
 trifusion/benchmarks.py
 Removeria trifusion/tests/data/teste.part.File
 Removeria trifusion/tests/data/teste2.charset
+/docs/_static/
+/docs/_templates/
