@@ -3090,6 +3090,7 @@ class TriFusionApp(App):
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
         shared_ns.counter = 0
+        shared_ns.exception = None
 
         # Set kill switch flag
         shared_ns.stop = False
@@ -6888,6 +6889,7 @@ class TriFusionApp(App):
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
         shared_ns.stop = False
+        shared_ns.exception = None
         shared_ns.counter = 0
 
         p = threading.Thread(target=get_stats_summary,
@@ -7839,6 +7841,7 @@ class TriFusionApp(App):
         # between background and main processes
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
+        shared_ns.exception = None
 
         # Initialize stop flag to allow thread to be killed by the user
         shared_ns.stop = False
@@ -11019,6 +11022,7 @@ class TriFusionApp(App):
 
         # Initialize stop flag to allow thread to be killed by the user
         shared_ns.stop = False
+        shared_ns.exception = None
 
         # Remove lock from background process
         self.terminate_load_files = False
@@ -11956,6 +11960,7 @@ class TriFusionApp(App):
         shared_ns = manager.Namespace()
         shared_ns.status = None
         shared_ns.apply_all = False
+        shared_ns.exception = None
 
         shared_ns.stop = False
         shared_ns.task = shared_ns.total = shared_ns.counter = \
