@@ -36,7 +36,7 @@ with warnings.catch_warnings():
     from os.path import abspath, join, basename
 
     try:
-        from process.base import print_col, GREEN, RED
+        from process.base import print_col, GREEN, RED, YELLOW
         from ortho import OrthomclToolbox as OT
         import ortho.orthomclInstallSchema as install_sqlite
         import ortho.orthomclPairs as make_pairs_sqlite
@@ -47,7 +47,7 @@ with warnings.catch_warnings():
         from ortho.error_handling import *
         from process.error_handling import KillByUser
     except ImportError:
-        from trifusion.process.base import print_col, GREEN, RED
+        from trifusion.process.base import print_col, GREEN, RED, YELLOW
         from trifusion.ortho import OrthomclToolbox as OT
         import trifusion.ortho.orthomclInstallSchema as install_sqlite
         import trifusion.ortho.orthomclPairs as make_pairs_sqlite
@@ -141,7 +141,9 @@ def prep_fasta(proteome_file, code, unique_id, dest, verbose=False, nm=None):
 
     # File handles
     file_in = open(proteome_file)
-    file_out = open(proteome_file.split(".")[0] + "_mod.fas", "w")
+    pfile = basename(proteome_file.split(".")[0] + "_mod.fas")
+    file_out_path = join(dest, "backstage_files", pfile)
+    file_out = open(file_out_path, "w")
 
     for line in file_in:
 
@@ -201,7 +203,12 @@ def adjust_fasta(file_list, dest, nm=None):
             nm.msg = "Adjusting file {}".format(basename(proteome))
 
         # Check the unique ID field
-        unique_id = check_unique_field(proteome, True, nm)
+        try:
+            unique_id = check_unique_field(proteome, True, nm)
+        except (IOError, OSError):
+            print_col("The file {} could not be parsed".format(proteome),
+                      YELLOW, 1)
+            continue
 
         # Adjust fasta
         # stg = prep_fasta(proteome, code_name, unique_id)
@@ -210,7 +217,8 @@ def adjust_fasta(file_list, dest, nm=None):
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
                             ".fasta"
 
-        shutil.move(proteome.split(".")[0] + "_mod.fas",
+        pfile = basename(proteome.split(".")[0] + "_mod.fas")
+        shutil.move(join(dest, "backstage_files", pfile),
                     join(cf_dir, protome_file_name))
 
     json_f = join(dest, "backstage_files", "header_mapping.json")
@@ -386,6 +394,23 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
     return stats_storage, groups_obj
 
 
+def check_bin_path(bin_path, program):
+
+    prog = {"usearch": "usearch",
+            "mcl": b"mcl"}
+
+    try:
+        res, _ = subprocess.Popen([bin_path, "--version"],
+                                  stdout=subprocess.PIPE).communicate()
+
+        if not res.startswith(prog[program]):
+            print_col("The {} executable file could not be found".format(
+                program), RED, 1)
+    except OSError:
+        print_col("The {} executable file could not be found".format(
+            program), RED, 1)
+
+
 def main():
 
     # The inclusion of the argument definition in main, makes it possible to
@@ -426,6 +451,19 @@ def main():
 
     # Search options
     search_opts = parser.add_argument_group("Ortholog search options")
+    search_opts.add_argument("--usearch", dest="usearch_bin",
+                             default="usearch",
+                             help="Provide the path to the USEARCH executable."
+                                  " If the executable is already in your "
+                                  "PATH environment variable, specify only"
+                                  " the name of the executable (default is "
+                                  "'%(default)s')")
+    search_opts.add_argument("--mcl", dest="mcl_bin", default="mcl",
+                             help="Provide the path to the MCL executable."
+                                  " If the executable is already in your "
+                                  "PATH environment variable, specify only"
+                                  " the name of the executable (default is "
+                                  "'%(default)s')")
     search_opts.add_argument("--min-length", dest="min_length", type=int,
                              default=10, help="Set minimum length allowed "
                              "for protein sequences (default is '%(default)s')")
@@ -506,6 +544,8 @@ def main():
         # name_separator = arg.separator
         min_length = arg.min_length
         max_percent_stop = arg.max_stop
+        usearch_bin = arg.usearch_bin
+        mcl_bin = arg.mcl_bin
         database_name = join(os.getcwd(), output_dir, "backstage_files",
                              arg.database)
         usearch_out_name = arg.search_out
@@ -517,6 +557,13 @@ def main():
         groups_file = arg.groups_file
         min_sp = arg.min_sp
         max_gn = arg.max_gn
+
+        # Check USEARCH bin
+        check_bin_path(usearch_bin, "usearch")
+        # Check MCL bin
+        check_bin_path(mcl_bin, "mcl")
+
+        sql_path = join(tmp_dir, "sqldb.db")
 
         # Get proteome files
         if not os.path.exists(input_dir):
@@ -536,7 +583,6 @@ def main():
         int_dir = join(output_dir, "backstage_files")
         if not os.path.exists(int_dir):
             os.makedirs(int_dir)
-        os.chdir(int_dir)
 
         if arg.normal:
             install_schema(tmp_dir)
@@ -544,14 +590,14 @@ def main():
             filter_fasta(min_length, max_percent_stop, database_name,
                          output_dir)
             allvsall_usearch(database_name, evalue_cutoff, output_dir, cpus,
-                             usearch_out_name)
+                             usearch_out_name, usearch_bin=usearch_bin)
             blast_parser(usearch_out_name, output_dir, tmp_dir, None)
             pairs(tmp_dir)
             dump_pairs(tmp_dir, output_dir)
-            mcl(inflation, output_dir)
+            mcl(inflation, output_dir, mcl_file=mcl_bin)
             mcl_groups(inflation, prefix, start_id, groups_file, output_dir)
             export_filtered_groups(inflation, groups_file, max_gn, min_sp,
-                                   "tmp.sql3", database_name, tmp_dir,
+                                   sql_path, database_name, tmp_dir,
                                    output_dir)
 
         elif arg.adjust:
@@ -562,14 +608,14 @@ def main():
             filter_fasta(min_length, max_percent_stop, database_name,
                          output_dir)
             allvsall_usearch(database_name, evalue_cutoff, output_dir, cpus,
-                             usearch_out_name)
+                             usearch_out_name, usearch_bin=usearch_bin)
             blast_parser(usearch_out_name, output_dir, tmp_dir, None)
             pairs(tmp_dir)
             dump_pairs(tmp_dir, output_dir)
-            mcl(inflation, output_dir)
+            mcl(inflation, output_dir, mcl_file=mcl_bin)
             mcl_groups(inflation, prefix, start_id, groups_file, output_dir)
             export_filtered_groups(inflation, groups_file, max_gn, min_sp,
-                                   "tmp.sql3", database_name, tmp_dir,
+                                   sql_path, database_name, tmp_dir,
                                    output_dir)
 
         print_col("OrthoMCL pipeline execution successfully completed in %s "

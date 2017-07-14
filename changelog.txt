@@ -30,6 +30,7 @@ unique headers of ortholog groups and their original header in the proteome
 file [0.5.34].
 - Added informative popups when comparing different group files with active
 filters and/or excluded taxa [0.5.34].
+- Added usearch and mcl checks before executing the orthomcl_pipeline [0.5.35].
 
 ### Process
 
@@ -95,6 +96,8 @@ indefinitely [0.5.28].
 proteome files are loaded [0.5.29].
 - Fixed issue where plots with no data would prevent the generation of a full
 report [0.5.34].
+- Fixed issues with orthomcl_pipeline that prevented the run from ending when
+invalid input files were present in the input directory [0.5.35].
 
 ### Process
 
