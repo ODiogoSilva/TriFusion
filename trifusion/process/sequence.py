@@ -6501,11 +6501,12 @@ class AlignmentList(Base):
             fh.close()
 
     def _write_nexus_partitions(self, aln_obj, use_charset, fh,
-                                use_nexus_models, outgroup_list):
+                                aln_parts, use_nexus_models,
+                                outgroup_list):
 
         if use_charset:
             # Writing _partitions, if any
-            if not aln_obj.partitions.is_single():
+            if not aln_parts.is_single():
                 fh.write("\nbegin mrbayes;\n")
                 p = 0
                 # Full gene _partitions
@@ -6535,17 +6536,17 @@ class AlignmentList(Base):
         # Write models, if any
         if use_nexus_models:
             # Ignore this if no models have been specified
-            if any([x[1] for x in aln_obj.partitions.models.values()]):
+            if any([x[1] for x in aln_parts.models.values()]):
 
                 fh.write("\nbegin mrbayes;\n")
 
-                model_dic = aln_obj.partitions._models
+                model_dic = aln_parts._models
                 linked_parts = []
 
                 part_idx = 1
-                for name in aln_obj.partitions.partitions:
+                for name in aln_parts.partitions:
 
-                    model_info = aln_obj.partitions.models[name]
+                    model_info = aln_parts.models[name]
 
                     # When no models have been specified for the current
                     # partition, skip it
@@ -6698,6 +6699,7 @@ class AlignmentList(Base):
                         fh.write(";\n\tend;")
 
                         self._write_nexus_partitions(aln_obj, use_charset, fh,
+                                                     aln_parts,
                                                      use_nexus_models,
                                                      outgroup_list)
 
@@ -6709,6 +6711,7 @@ class AlignmentList(Base):
                         continue
 
                     aln_obj = self.alignment_idx[aln_idx]
+                    aln_parts = aln_obj.partitions
 
                     self._update_pipes(ns, pbar, value=c,
                                        msg="Writing Nexus file "
@@ -6733,6 +6736,7 @@ class AlignmentList(Base):
             if fh:
                 fh.write(";\n\tend;")
                 self._write_nexus_partitions(aln_obj, use_charset, fh,
+                                             aln_parts,
                                              use_nexus_models,
                                              outgroup_list)
 
@@ -6742,13 +6746,13 @@ class AlignmentList(Base):
             c = 1
 
             for taxon, seq, aln_idx in self.iter_alignments(table_name):
-
                 if aln_idx != prev_file:
 
                     if fh:
                         fh.write(";\n\tend;")
 
                         self._write_nexus_partitions(aln_obj, use_charset, fh,
+                                                     aln_parts,
                                                      use_nexus_models,
                                                      outgroup_list)
 
@@ -6760,6 +6764,7 @@ class AlignmentList(Base):
                         continue
 
                     aln_obj = self.alignment_idx[aln_idx]
+                    aln_parts = aln_obj.partitions
 
                     self._update_pipes(ns, pbar, value=c,
                                        msg="Writing Nexus file "
@@ -6777,6 +6782,7 @@ class AlignmentList(Base):
             if fh:
                 fh.write(";\n\tend;")
                 self._write_nexus_partitions(aln_obj, use_charset, fh,
+                                             aln_parts,
                                              use_nexus_models,
                                              outgroup_list)
 
@@ -7229,7 +7235,6 @@ class AlignmentList(Base):
                 (len(seq_types) > 1 and len(self.alignments) == 1):
             self.partition_data = self._get_partition_data(
                 table_name, overide_table=True, seq_types=seq_types)
-
 
         for fmt in output_format:
 
