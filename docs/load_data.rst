@@ -12,6 +12,7 @@ Input types and formats
 
 Orthology - search
 ^^^^^^^^^^^^^^^^^^
+.. _orto_format:
 
 **Proteome** files can be provided as the input for the Orthology search
 operation. These are **Fasta** formatted files, each with the amino acid
