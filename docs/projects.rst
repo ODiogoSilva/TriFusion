@@ -28,6 +28,11 @@ project (proteomes), whereas a ``P`` label represents a **Process** and
 Load a project
 --------------
 
+.. warning::
+
+    When a new project is loaded, any previously loaded files are removed
+    from the current session!
+
 There are two places where saved projects can be loaded. In the home
 screen of TriFusion, there is a *Quick Open Project* box:
 
