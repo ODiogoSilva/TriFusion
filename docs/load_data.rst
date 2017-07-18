@@ -83,6 +83,11 @@ or ?.
 How to load data into the app
 -----------------------------
 
+.. note::
+
+    **Data availability for this tutorial**: the small data set
+    of 7 alignment files is available `here <https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/Datasets/Process/Small_alignment_dataset/small_alignments.zip9>`_.
+
 Filechooser
 ^^^^^^^^^^^
 

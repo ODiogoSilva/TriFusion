@@ -3,8 +3,8 @@ Data set groups
 
 .. note::
 
-    If you want to accompany this tutorial in TriFusion, a medium sized data
-    set of 614 genes and 48 taxa will be used and it can be downloaded
+    **Data availability for this tutorial**: the medium sized data
+    set of 614 genes and 48 taxa that will be used can be downloaded
     `here <https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/Datasets/Process/medium_protein_dataset/medium_protein_dataset.zip>`_.
 
 What are active data sets

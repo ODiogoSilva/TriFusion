@@ -3,8 +3,9 @@ Search orthologs
 
 .. note::
 
-    If you want to accompany this tutorial in TriFusion, the data set of 10
-    fungal proteomes can be downloaded `here <https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/Datasets/10genomes/proteomes/10proteomes.zip>`_.
+    **Data availability for this tutorial**: the data set of 10
+    fungal proteomes that will be used can be downloaded
+    `here <https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/Datasets/10genomes/proteomes/10proteomes.zip>`_.
 
 .. warning::
 

@@ -3,8 +3,8 @@ Explore ortholog search results
 
 .. note::
 
-    If you want to accompany this tutorial in TriFusion, the three group
-    files used here can be downloaded
+    **Data availability for this tutorial**: the three group
+    files used in this tutorial can be downloaded
     `here <https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/Datasets/Ortholog_groups/groups.zip>`_
 
 Load group files
