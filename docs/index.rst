@@ -57,6 +57,7 @@ The structure of the tutorials is organized in a couple of sections:
    :maxdepth: 2
    :caption: Process (GUI)
 
+   limitations
    basic
    secondary_operations
    reverse_concatenation
