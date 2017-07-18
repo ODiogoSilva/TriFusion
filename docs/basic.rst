@@ -212,8 +212,109 @@ down menu of the **Data set** general option.
 Once the C_taxa group is selected, click the ``Execute`` button and
 complete the concatenation as before.
 
-
-
 Concatenation with custom partitions
 ------------------------------------
 
+One of the convenient features of TriFusion is that it allows you to easily
+edit or import from a text file the partitions of your current data set.
+You don't really have to worry about the range, order, size of the partitions,
+as long as you don't mix partitions of different sequences types
+(e.g. protein and nucleotide). You can also specify some substitution models
+for your partitions for output formats that support that kind of information
+(Nexus and Phylip). You can check the more detailed :doc:`partitions`
+tutorial.
+
+Load data
+^^^^^^^^^
+
+Here we'll see how the concatenation operation can seamlessly deal with any
+partition scheme you provide, with or without information on the substitution
+model. For this part of the tutorial we'll use a `smaller data set of
+10 alignments <https://github.com/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Datasets/Process/mixed_small/mixed_small.zip>`_
+so that it is easier to follow the changes. Nevertheless,
+TriFusion is able to deal with thousands of partitions as easily.
+
+This is a mixed data set containing Fasta and Phylip alignments of protein
+and nucleotide sequences. Let's import the data using the drag and drop
+method.
+
+.. image:: https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/gifs/process_tutorial3_dragndrop.gif
+    :alt: pic
+
+If you navigate to ``Menu -> Open/View Data`` and click on the *Partitions*
+tab you can see that TriFusion attributes a partition to each individual
+input file by default (unless partition schemes are provided when loading
+Nexus files).
+
+.. image:: https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/images/process_partition_list.png
+    :alt: pic
+
+Basic concatenation
+^^^^^^^^^^^^^^^^^^^
+
+Loading a mixed data set (nucleotide and protein sequences) raises the
+immediate issue that, in formats such as Nexus, the ranges of the nucleotide
+and protein sequences has to be defined in the header, in addition to the
+partitions definition. TriFusion does this for you and simplifies the issue
+by grouping nucleotide and protein files/partitions together, regardless of
+their input order.
+
+First, let's perform a **Concatenation** operation without further
+modification of the default partitions. Specify the *Nexus* as the output
+format, provide an output file and click ``Execute``.
+
+If you inspect the output Nexus file, you can see that the header
+now has the information on the mixed data set::
+
+    #NEXUS
+    Begin data;
+        dimensions ntax=49 nchar=6134 ;
+        format datatype=mixed(dna:1-2790,protein:2791-6134) interleave=no gap=-;
+
+With the concatenated alignment having the first 2790 characters as nucleotides
+and the remaining as amino acid residues. At the end of the file,
+the partitions are also correctly defined and ready for downstream software
+like MrBayes::
+
+    begin mrbayes;
+        charset BasidioOnly2585dnaphy = 1-1458;
+        charset BasidioOnly2685dnaphy = 1459-1722;
+        charset BasidioOnly2686dnaphy = 1723-2259;
+        charset BasidioOnly2687dnaphy = 2260-2790;
+        charset BasidioOnly2585proteinfas = 2791-3837;
+        charset BasidioOnly2685proteinfas = 3838-3959;
+        charset BasidioOnly2686proteinfas = 3960-4153;
+        charset BasidioOnly2687proteinfas = 4154-4373;
+        charset BasidioOnly2689proteinfas = 4374-5178;
+        charset BasidioOnly2690proteinfas = 5179-6134;
+        partition part = 10: BasidioOnly2585dnaphy, BasidioOnly2685dnaphy, BasidioOnly2686dnaphy, BasidioOnly2687dnaphy, BasidioOnly2585proteinfas, BasidioOnly2685proteinfas, BasidioOnly2686proteinfas, BasidioOnly2687proteinfas, BasidioOnly2689proteinfas, BasidioOnly2690proteinfas;
+        set partition=part;
+    end;
+
+Merge partitions
+----------------
+
+Partitions can be merged in any number and order, provided that they share
+the same sequence type (nucleotide partitions can only be merged with
+nucleotide). We can, for instance, merge all protein partitions together
+and the first and last nucleotide partitions. To accomplish this, select
+all partitions you wish to merge and click the *merge partitions* button
+at the bottom of the panel.
+
+.. image:: https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/gifs/process_tutorial3_merge_parts.gif
+    :alt: pic
+
+When we repeat the **Concatenation** operation, we can see that the Nexus
+header remains the same, but the partitions have been updated. **Notice that
+even though we merged non-contiguous partitions, they appear with the
+same range**. This is because TriFusion will first sort the partition sequences
+so that they become contiguous and only then it will write the output file::
+
+    begin mrbayes;
+        charset nuc1 = 1-1989;
+        charset BasidioOnly2685dnaphy = 1990-2253;
+        charset BasidioOnly2686dnaphy = 2254-2790;
+        charset proteinparts = 2791-6134;
+        partition part = 4: nuc1, BasidioOnly2685dnaphy, BasidioOnly2686dnaphy, proteinparts;
+        set partition=part;
+    end;
