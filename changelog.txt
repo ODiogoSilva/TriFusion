@@ -120,3 +120,5 @@ and Phylip output formats [0.5.30].
 
 - Fixed color scheme for stacked bar plots that lumped together pairs
 of categories [0.5.1].
+- Fixed issue where removing taxa from the active taxa group would not
+take effect on some operations of the Statistics module [0.5.36].

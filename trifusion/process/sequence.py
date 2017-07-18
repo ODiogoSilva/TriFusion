@@ -3180,6 +3180,7 @@ class AlignmentList(Base):
                     "{idx} " \
                     "FROM [{tb}] " \
                     "WHERE {cond} " \
+                    "AND {cond_tx} " \
                     "GROUP BY {idx}"
 
             group_idx = group_by if group_by else "aln_idx"
@@ -3189,6 +3190,9 @@ class AlignmentList(Base):
             else:
                 shelved = ", ".join([str(x) for x in self.shelved_idx])
                 cond = "aln_idx NOT in ({})".format(shelved)
+
+            cond_tx = "taxon NOT IN ({})".format(", ".join(
+                ["'{}'".format(x) for x in self.shelved_taxa]))
 
             if include_taxa:
                 tx_query = "GROUP_CONCAT(taxon),"
@@ -3202,6 +3206,7 @@ class AlignmentList(Base):
                                     query.format(pos=p,
                                                  tb=table_name,
                                                  cond=cond,
+                                                 cond_tx=cond_tx,
                                                  tx=tx_query,
                                                  idx=group_idx))):
                         for col in itertools.izip(*res[1]):
@@ -3211,6 +3216,7 @@ class AlignmentList(Base):
                             query.format(pos=p,
                                          tb=table_name,
                                          cond=cond,
+                                         cond_tx=cond_tx,
                                          tx=tx_query,
                                          idx=group_idx))):
                         for col in itertools.izip(*res[0]):

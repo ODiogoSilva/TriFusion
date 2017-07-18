@@ -206,6 +206,32 @@ class SeconaryOpsTest(unittest.TestCase):
 
         os.remove("test_zorro.out")
 
+    def test_iter_columns(self):
+
+        self.aln_obj = AlignmentList([variable_data[1]])
+
+        s = 0
+        for col, aln_idx in self.aln_obj.iter_columns():
+
+            if len(set(col)) > 1:
+                s += 1
+
+        self.assertEqual(s, 3)
+
+    def test_iter_columns_with_active_tx(self):
+
+        self.aln_obj = AlignmentList([variable_data[1]])
+
+        self.aln_obj.update_taxa_names(
+            self.aln_obj.taxa_names[1:])
+
+        s = 0
+        for col, aln_idx in self.aln_obj.iter_columns():
+
+            if len(set(col)) > 1:
+                s += 1
+
+        self.assertEqual(s, 2)
 
 # class MultipleSeconaryOpsTest(unittest.TestCase):
 #
