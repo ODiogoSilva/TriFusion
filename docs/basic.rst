@@ -292,7 +292,7 @@ like MrBayes::
     end;
 
 Merge partitions
-----------------
+^^^^^^^^^^^^^^^^
 
 Partitions can be merged in any number and order, provided that they share
 the same sequence type (nucleotide partitions can only be merged with
