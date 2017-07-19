@@ -115,6 +115,7 @@ concatenation. [0.5.11]
 and Phylip output formats [0.5.30].
 - Fixed issue with overwrite/skip/cancel when executing process operations
 [0.5.32].
+- Fixed issue with consensus using the first sequence method [0.5.37].
 
 ### Statistics
 

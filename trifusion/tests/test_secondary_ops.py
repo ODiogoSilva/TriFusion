@@ -158,11 +158,23 @@ class SeconaryOpsTest(unittest.TestCase):
         self.aln_obj.consensus("First sequence", use_main_table=True)
 
         s = []
-        print(self.aln_obj.alignments)
+
         for aln in self.aln_obj:
             s.append(len(aln.taxa_idx))
 
         self.assertEqual(s, [1] * 7)
+
+    def test_consensus_first_seq2(self):
+
+        self.aln_obj.add_alignment_files(dna_data_fas)
+
+        self.aln_obj.consensus("First sequence", use_main_table=True)
+
+        s = 0
+        for _ in self.aln_obj.iter_alignments():
+            s += 1
+
+        self.assertEqual(s, 7)
 
     def test_reverse_concatenate(self):
 

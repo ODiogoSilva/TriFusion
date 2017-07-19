@@ -5644,13 +5644,17 @@ class AlignmentList(Base):
                     # Set final aln_idx. When single_file is set to True, all
                     # final aln_idx are 1. Else, the original aln_idx is used.
                     final_idx = 1 if single_file else aln_idx
+                    prev_idx = aln_idx
 
                     skip = False
 
                 if skip:
                     continue
 
-                add_to_database(0, "consensus", seq, final_idx, aln_name)
+                if single_file:
+                    add_to_database(c - 1, aln_name, seq, final_idx, aln_name)
+                else:
+                    add_to_database(0, "consensus", seq, final_idx, aln_name)
 
                 # Set skip flag to True so that all remaining sequences of the
                 # current alignment are ignored
