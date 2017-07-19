@@ -5409,10 +5409,10 @@ class TriFusionApp(App):
 
                     try:
 
-                        if self.active_file_list:
-                            aln_path = self.filename_map[b.id]
-                            self.alignment_list.update_active_alignment(
-                                aln_path, "shelve")
+                        # if self.active_file_list:
+                        #     aln_path = self.filename_map[b.id]
+                        #     self.alignment_list.update_active_alignment(
+                        #         aln_path, "shelve")
 
                         act_lst.remove(self.filename_map[b.id])
                         b.state = "normal"
@@ -5427,10 +5427,14 @@ class TriFusionApp(App):
                         act_lst.append(self.filename_map[b.id])
                         b.state = "down"
 
-                        if self.active_file_list:
-                            aln_path = self.filename_map[b.id]
-                            self.alignment_list.update_active_alignment(
-                                aln_path, "active")
+                        # if self.active_file_list:
+                        #     aln_path = self.filename_map[b.id]
+                        #     self.alignment_list.update_active_alignment(
+                        #         aln_path, "active")
+
+            if self.active_file_list:
+                self.alignment_list.update_active_alignments(
+                    act_lst, no_taxa_update=True)
 
             # Update label
             self.update_file_label()
@@ -5955,7 +5959,7 @@ class TriFusionApp(App):
             if self.file_list:
                 self.active_file_list = self.file_list[:]
                 self.alignment_list.update_active_alignments(
-                    [x for x in self.file_list])
+                    [x for x in self.file_list], no_taxa_update=True)
             elif self.proteome_files:
                 self.active_proteome_files = self.proteome_files[:]
 
@@ -5969,7 +5973,8 @@ class TriFusionApp(App):
                 value.text == "Deselect All"):
             if self.file_list:
                 self.active_file_list = []
-                self.alignment_list.update_active_alignments([])
+                self.alignment_list.update_active_alignments(
+                    [], no_taxa_update=True)
             elif self.proteome_files:
                 self.active_proteome_files = []
         # Core changes to taxa
@@ -11975,6 +11980,7 @@ class TriFusionApp(App):
         process_kwargs = {"aln_list": self.alignment_list,
             "file_set_name": self.process_grid_wgt.ids.active_file_set.text,
             "file_list": list(self.file_list),
+            "active_file_list": list(self.active_file_list),
             "filename_map": dict(self.filename_map),
             "file_groups": dict(self.file_groups),
             "taxa_set_name": self.process_grid_wgt.ids.active_taxa_set.text,

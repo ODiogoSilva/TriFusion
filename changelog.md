@@ -60,6 +60,8 @@ formats non-compliant with conversion/reverse concatenation [0.5.25].
 operations [0.5.30].
 - Major improvement of the partition and substitution model setup in
 certain output file formats (Nexus and Phylip) [0.5.30].
+- Improved performance when toggling files/taxa on the side panel
+[0.5.39].
 
 ### Statistics
 

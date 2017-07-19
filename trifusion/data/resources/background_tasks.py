@@ -510,8 +510,8 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.exception = str(e)
 
 
-def update_active_fileset(aln_obj, set_name, file_list, file_groups,
-                          filename_map):
+def update_active_fileset(aln_obj, set_name, file_list, active_file_list,
+                          file_groups, filename_map):
     """Upates the active files of an `AlignmentList` object
 
     This method is similar in purpose to
@@ -537,6 +537,7 @@ def update_active_fileset(aln_obj, set_name, file_list, file_groups,
         aln_obj.update_active_alignments([x for x in file_list])
         return aln_obj
     if set_name == "Active files":
+        aln_obj.update_active_alignments(active_file_list)
         return aln_obj
     else:
         aln_obj.update_active_alignments(
@@ -576,8 +577,8 @@ def update_active_taxaset(aln_obj, set_name, active_taxa_list, taxa_groups):
     return aln_obj
 
 
-def process_execution(aln_list, file_set_name, file_list, file_groups,
-                        filename_map,
+def process_execution(aln_list, file_set_name, file_list, active_file_list,
+                        file_groups, filename_map,
                         taxa_set_name, active_taxa_list, ns, taxa_groups,
                         hap_prefix, secondary_operations, secondary_options,
                         missing_filter_settings, taxa_filter_settings,
@@ -899,6 +900,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         aln_object = update_active_fileset(aln_list,
                                            file_set_name,
                                            file_list,
+                                           active_file_list,
                                            file_groups,
                                            filename_map)
 

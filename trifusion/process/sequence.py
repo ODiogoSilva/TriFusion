@@ -6376,7 +6376,7 @@ class AlignmentList(Base):
 
                         # Get model for codon partitions
                         try:
-                            model = self.partitions.models[name][1][p]
+                            model = models[name][1][p]
                         # If a model was not set for the current codon 
                         # partition, fall back to the sequence type
                         except IndexError:
@@ -6391,9 +6391,9 @@ class AlignmentList(Base):
 
                 else:
                     # Get model
-                    model = self.partitions.models[name][1][0]
+                    model = models[name][1][0]
                     model = model if model else \
-                        self.partitions.partitions_type[name]
+                        self.partitions.get_sequence_type(name)
                     partition_file.write(
                         "{}, {} = {}-{}\n".format(
                             model, name, lrange[0][0] + 1, lrange[0][1] + 1))
