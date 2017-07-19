@@ -71,7 +71,6 @@ The structure of the tutorials is organized in a couple of sections:
 
    summary
    stats_exploration
-   stats_fast_switch
    stats_active_dataset
 
 .. _trifusion-cli:

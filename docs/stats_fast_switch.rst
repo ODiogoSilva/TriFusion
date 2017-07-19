@@ -1,4 +1,0 @@
-Switching between plot types
-============================
-
-
