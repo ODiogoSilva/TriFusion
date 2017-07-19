@@ -9929,7 +9929,7 @@ class TriFusionApp(App):
         if main_op == "reverse_concatenation" and not self.rev_infile and \
                 len(self.file_list) > 1:
             return self.dialog_floatcheck(
-                "Reverse concatenation using _partitions defined in "
+                "Reverse concatenation using partitions defined in "
                 "the app requires only one input alignment. Please select"
                 " a single file to reverse concatenate in the Reverse "
                 "concatenate settings", t="error")

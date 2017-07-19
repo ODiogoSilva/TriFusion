@@ -59,8 +59,8 @@ The structure of the tutorials is organized in a couple of sections:
 
    limitations
    basic
-   secondary_operations
    reverse_concatenation
+   secondary_operations
    partitions
 
 .. _statistics:
