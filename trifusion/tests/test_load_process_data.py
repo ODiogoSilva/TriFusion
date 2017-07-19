@@ -400,6 +400,15 @@ class AlignmentManipulationTest(unittest.TestCase):
 
         os.remove("test.fas")
 
+    def test_concatention_after_removal(self):
+
+        fl = [x for x in self.aln_obj.alignments][3:]
+        self.aln_obj.remove_file(fl)
+
+        self.aln_obj.concatenate()
+
+        self.assertEqual(len(self.aln_obj.alignments), 1)
+
 
 class LoadBadAlignmentsTest(unittest.TestCase):
 

@@ -691,13 +691,15 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         else:
 
-            aln.update_active_alignments([rev_infile])
+            # Remove all alignments except the one to be reversed
+            al = [x for x in aln.all_alignments if x != rev_infile]
+            aln.remove_file(al)
 
             er = aln.partitions.read_from_file(partitions_file)
 
             if er:
                 ns.exception = {
-                    "exception": ["Invalid partition file", er.value]}
+                    "exception": ["Invalid partition file", er.message]}
                 raise data.InvalidPartitionFile("")
 
             aln.reverse_concatenate(table_in=table_in, table_out=table_out,

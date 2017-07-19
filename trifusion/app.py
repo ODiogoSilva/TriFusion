@@ -11929,6 +11929,7 @@ class TriFusionApp(App):
                 # Removes all temporary database tables
                 self.alignment_list.remove_tables()
                 self.alignment_list.restore_state(state_fl)
+                self.alignment_list.remove_aux_tables()
                 os.remove(state_fl)
 
                 p.join()

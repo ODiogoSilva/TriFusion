@@ -13,6 +13,7 @@ x = Base()
 temp_dir = ".temp"
 sql_db = ".temp/sequencedb"
 
+
 class ProcessWriteSinglesTest(unittest.TestCase):
 
     def setUp(self):

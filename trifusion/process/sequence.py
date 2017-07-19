@@ -3144,9 +3144,11 @@ class AlignmentList(Base):
             for txId, taxon, seq, aln_idx in self.cur.execute(
                     "SELECT txId, taxon, seq, aln_idx "
                     "FROM [{}] "
-                    "WHERE aln_idx NOT IN ({})".format(
+                    "WHERE aln_idx NOT IN ({}) AND "
+                    "aln_idx IN ({})".format(
                         table_name,
-                        ", ".join([str(x) for x in self.shelved_idx]))):
+                        ", ".join([str(x) for x in self.shelved_idx]),
+                        ", ".join([str(x) for x in self.alignment_idx]))):
                 if taxon not in self.shelved_taxa:
                     if include_txid:
                         yield txId, taxon, seq, aln_idx
@@ -3560,6 +3562,12 @@ class AlignmentList(Base):
 
         return [x.table_name for x in
                 self.all_alignments.values()]
+
+    def remove_aux_tables(self):
+
+        self.cur.execute(
+            "DELETE FROM aux WHERE aln_idx NOT IN ({})".format(
+                ", ".join([str(x) for x in xrange(self._idx + 1)])))
 
     def remove_tables(self, preserve_tables=None, trash_tables=None):
         """Drops tables from the database.
@@ -5125,6 +5133,9 @@ class AlignmentList(Base):
 
         # Update size
         self.size = sum((x.locus_length for x in self.alignments.values()))
+
+        # Update partitions
+        self.partitions.remove_partition(file_list=filename_list)
 
     def select_by_taxa(self, taxa_list, mode="strict"):
         """Selects a list of `Alignment` objects by taxa.
@@ -6756,6 +6767,7 @@ class AlignmentList(Base):
             c = 1
 
             for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
                 if aln_idx != prev_file:
 
                     if fh:
