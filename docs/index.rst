@@ -24,7 +24,7 @@ The structure of the tutorials is organized in a couple of sections:
 .. _getting-started:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Getting started
 
    installation
@@ -33,7 +33,7 @@ The structure of the tutorials is organized in a couple of sections:
 .. _trifusion-gui:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: TriFusion GUI
 
    load_data
@@ -43,7 +43,7 @@ The structure of the tutorials is organized in a couple of sections:
 .. _orthology:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Orthology (GUI)
 
    third_party
@@ -54,7 +54,7 @@ The structure of the tutorials is organized in a couple of sections:
 .. _process:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Process (GUI)
 
    limitations
@@ -66,11 +66,16 @@ The structure of the tutorials is organized in a couple of sections:
 .. _statistics:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Statistics (GUI)
+
+   summary
+   stats_exploration
+   stats_fast_switch
+   stats_active_dataset
 
 .. _trifusion-cli:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: TriFusion CLI
