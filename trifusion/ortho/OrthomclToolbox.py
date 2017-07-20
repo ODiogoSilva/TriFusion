@@ -1623,7 +1623,7 @@ class MultiGroupsLight(object):
         """
 
         try:
-            return pickle.load(open(self.groups[group_id], "rb"))
+            return pickle.load(open(self.groups[unicode(group_id)], "rb"))
         except KeyError:
             return
 
