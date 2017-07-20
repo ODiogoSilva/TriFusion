@@ -62,6 +62,8 @@ operations [0.5.30].
 certain output file formats (Nexus and Phylip) [0.5.30].
 - Improved performance when toggling files/taxa on the side panel
 [0.5.39].
+- Improved performance on alignment reading for Unix operating systems
+[0.5.40].
 
 ### Statistics
 

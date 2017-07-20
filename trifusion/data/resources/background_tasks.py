@@ -210,13 +210,15 @@ def load_proc(aln_list, file_list, nm, queue):
     """
     try:
         if aln_list:
+            aln_list.resume_database()
             aln_list.add_alignment_files(file_list,
                                          ns=nm)
             aln_obj = aln_list
         else:
             aln_obj = AlignmentList(file_list, shared_namespace=nm)
 
-        queue.put(aln_obj)
+        aln_obj.close_database()
+        nm.res = aln_obj
 
     except MultipleSequenceTypes:
         nm.exception = "multiple_type"

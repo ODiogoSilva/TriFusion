@@ -2973,7 +2973,8 @@ class AlignmentList(Base):
         for each Alignment object"""
 
         if not db_cur and not db_con:
-            self.con = sqlite3.connect(self.sql_path, check_same_thread=False)
+            self.con = sqlite3.connect(self.sql_path, check_same_thread=False,
+                                       timeout=0.0)
             self.cur = self.con.cursor()
             self.cur.execute("PRAGMA synchronous = OFF")
 
@@ -3522,7 +3523,8 @@ class AlignmentList(Base):
         *all* (even the shelved ones) `Alignment` objects.
         """
 
-        self.con = sqlite3.connect(self.sql_path, check_same_thread=False)
+        self.con = sqlite3.connect(self.sql_path, check_same_thread=False,
+                                   timeout=0.0)
         self.cur = self.con.cursor()
 
         for aln in self.all_alignments.values():

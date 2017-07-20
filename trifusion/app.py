@@ -104,7 +104,6 @@ import urllib
 import string
 import signal
 import shutil
-import Queue
 import stat
 import sys
 import os
@@ -115,6 +114,11 @@ from collections import OrderedDict
 from functools import partial
 from copy import deepcopy
 from scipy import misc
+
+if sys.platform in ["win32", "cygwin"]:
+    import Queue
+else:
+    from multiprocessing import Queue
 
 # Move to Application's directory. This is a way of avoiding encoding
 # issues when the full path to the application's directory contains
@@ -265,6 +269,11 @@ except ImportError:
 # ==============================================================================
 
 MCL_FILE = None
+
+if sys.platform in ["cygwin", "win32"]:
+    worker_dispatch = threading.Thread
+else:
+    worker_dispatch = multiprocessing.Process
 
 
 class InputTypeError(Exception):
@@ -10943,7 +10952,9 @@ class TriFusionApp(App):
 
                 # Get the alignment object from the child thread and load
                 # it into the app
-                aln_obj = queue.get()
+                aln_obj = shared_ns.res
+                # Resume the database connection
+                aln_obj.resume_database()
                 self.load_files(file_list, aln_obj)
 
                 # Shutting down manager that provides communication between
@@ -10951,7 +10962,11 @@ class TriFusionApp(App):
                 manager.shutdown()
 
                 # Join child process and exit
-                p.join()
+                try:
+                    p.terminate()
+                except AttributeError:
+                    p.join()
+
                 return
 
             # Kill switch
@@ -10977,11 +10992,19 @@ class TriFusionApp(App):
                 Clock.unschedule(func)
 
                 # Join child process and exit
-                p.join()
+                try:
+                    p.terminate()
+                except AttributeError:
+                    p.join()
+
+                self.terminate_stats = True
 
                 # Clean up alignments that were already loaded into the
                 # AlignmentList object
-                self.alignment_list.remove_file(file_list)
+                try:
+                    self.alignment_list.remove_file(file_list)
+                except AttributeError:
+                    self.alignment_list.resume_database()
 
                 return
 
@@ -11023,7 +11046,12 @@ class TriFusionApp(App):
         # between background and main processes
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
-        queue = Queue.Queue()
+        # Set the Queue, depending on whether we are on Windows (Queue.Queue)
+        # or Unix (Queue)
+        try:
+            queue = Queue.Queue()
+        except AttributeError:
+            queue = Queue()
 
         # Initialize stop flag to allow thread to be killed by the user
         shared_ns.stop = False
@@ -11032,8 +11060,12 @@ class TriFusionApp(App):
         # Remove lock from background process
         self.terminate_load_files = False
 
+        # Close database in main process, so that is can be freely used
+        # in the child process
+        self.alignment_list.close_database()
+
         # Create process
-        p = threading.Thread(
+        p = worker_dispatch(
                 target=load_proc,
                 args=(self.alignment_list, file_list, shared_ns,
                       queue))
@@ -12016,7 +12048,7 @@ class TriFusionApp(App):
         self.terminate_process_exec = False
 
         # Create process
-        p = threading.Thread(target=process_execution,
+        p = worker_dispatch(target=process_execution,
                      kwargs=process_kwargs)
         p.start()
 
