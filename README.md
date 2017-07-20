@@ -7,13 +7,13 @@ Website: http://odiogosilva.github.io/TriFusion/
 <img src="https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/images/trifusion_home_screen.png"/>
 
 [![Build Status](https://travis-ci.org/ODiogoSilva/TriFusion.svg?branch=master)](https://travis-ci.org/ODiogoSilva/TriFusion)
+[![Documentation Status](https://readthedocs.org/projects/trifusion/badge/?version=latest)](http://trifusion.readthedocs.io/en/latest/?badge=latest)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/817a7c37a240473195a5b9e31442121d)](https://www.codacy.com/app/o.diogosilva/TriFusion?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ODiogoSilva/TriFusion&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/ODiogoSilva/TriFusion/branch/master/graph/badge.svg)](https://codecov.io/gh/ODiogoSilva/TriFusion)
 [![PyPI](https://img.shields.io/pypi/pyversions/trifusion.svg)](https://pypi.python.org/pypi/trifusion)
 [![PyPI](https://img.shields.io/pypi/v/trifusion.svg)](https://pypi.python.org/pypi/trifusion)
 [![AUR](https://img.shields.io/aur/version/trifusion.svg)](https://aur.archlinux.org/packages/trifusion/)
 [![Join the chat at https://gitter.im/TriFusion-dev/Lobby](https://badges.gitter.im/TriFusion-dev/Lobby.svg)](https://gitter.im/TriFusion-dev/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Documentation Status](https://readthedocs.org/projects/trifusion/badge/?version=latest)](http://trifusion.readthedocs.io/en/latest/?badge=latest)
 
 
 [comment]: <> (<img align="right" height="128" src="https://github.com/ODiogoSilva/TriFusion/blob/43a41005ee8b1f69d7ae04684b0a0e595c527b4f/trifusion/data/backgrounds/trifusion-icon-256.png?raw=true"/>)
