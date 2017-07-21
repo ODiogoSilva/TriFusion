@@ -151,6 +151,19 @@ class LoadAlignmentsTest(unittest.TestCase):
         self.aln_obj = AlignmentList(unequal_file, sql_db=sql_db)
         self.assertTrue(self.aln_obj.non_alignments)
 
+    def test_bad_file_removal_from_db(self):
+
+        self.aln_obj = AlignmentList(unequal_file, sql_db=sql_db)
+        self.aln_obj.add_alignment_files(dna_data_fas)
+
+        s = 0
+
+        for tx, _, _ in self.aln_obj.iter_alignments():
+            if tx == "Seq1":
+                s += 1
+
+        self.assertEqual(s, 0)
+
     def test_load_no_data(self):
 
         self.aln_obj = AlignmentList(no_data, sql_db=sql_db)
