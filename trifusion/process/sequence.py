@@ -2701,6 +2701,12 @@ class Alignment(Base):
                                    " the alignment: {}".format(
                 "; ".join(duplicate_taxa)))
 
+    def remove_alignment(self):
+        """Removes data from current alignment from the database"""
+
+        self.cur.execute(
+            "DELETE FROM alignment_data WHERE aln_idx=?", (self.db_idx,))
+
     def remove_taxa(self, taxa_list_file, mode="remove"):
         """ Removes taxa from the `Alignment` object.
 
@@ -3997,6 +4003,9 @@ class AlignmentList(Base):
             aln_obj = Alignment(aln_path, sql_cursor=self.cur,
                                 db_idx=self._idx, sql_con=self.con,
                                 temp_dir=os.path.dirname(self.sql_path))
+
+            if aln_obj.e:
+                aln_obj.remove_alignment()
 
             if isinstance(aln_obj.e, InputError):
                 self.bad_alignments.append(aln_obj.path)
