@@ -305,6 +305,8 @@ class TriFusionApp(App):
     Currently open Screen object.
     """
 
+    os_platform = sys.platform
+
     # Variable containing screen names
     screen_names = ListProperty()
     """List of basename screen names."""
