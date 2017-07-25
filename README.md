@@ -4,7 +4,7 @@
 
 Website: http://odiogosilva.github.io/TriFusion/
 
-:loudspeaker: ANNOUNCING: TriFusion 1.0.0 is almost live :tada: :ballon: (Holding out for MacOs)
+:loudspeaker: ANNOUNCING: TriFusion 1.0.0 is almost live :tada: :balloon: (Holding out for MacOs)
 
 <img src="https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/images/trifusion_home_screen.png"/>
 
