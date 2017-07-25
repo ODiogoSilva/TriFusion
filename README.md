@@ -4,6 +4,8 @@
 
 Website: http://odiogosilva.github.io/TriFusion/
 
+:loudspeaker: ANNOUNCING: TriFusion 1.0.0 is almost live :tada: :ballon: (Holding out for MacOs)
+
 <img src="https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/images/trifusion_home_screen.png"/>
 
 [![Build Status](https://travis-ci.org/ODiogoSilva/TriFusion.svg?branch=master)](https://travis-ci.org/ODiogoSilva/TriFusion)
@@ -116,10 +118,6 @@ Tutorials on how to use TriFusion for its many tasks can be perused [here](http:
 ## Documentation
 
 You can download TriFusion User Guide [here](https://github.com/ODiogoSilva/TriFusion/raw/master/docs/manual.pdf).
-
-## Mozilla Community Participation Guidelines
-
-The code of conduct for participating on Mozilla's Global Sprint 2017 can be read [here](https://www.mozilla.org/en-US/about/governance/policies/participation/).
 
 ## Citation
 
