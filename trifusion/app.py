@@ -12048,7 +12048,7 @@ class TriFusionApp(App):
         self.terminate_process_exec = False
 
         # Create process
-        p = worker_dispatch(target=process_execution,
+        p = threading.Thread(target=process_execution,
                      kwargs=process_kwargs)
         p.start()
 

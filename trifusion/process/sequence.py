@@ -4385,7 +4385,7 @@ class AlignmentList(Base):
 
         for p, (k, aln_obj) in enumerate(list(self.alignments.items())):
 
-            aln_tx = set(aln_obj.taxa_idx.keys())
+            aln_tx = set(aln_obj.taxa_idx.keys()) - set(self.shelved_taxa)
 
             self._update_pipes(
                 ns, pbar, value=p + 1, msg="Filtering file {}".format(
@@ -4415,12 +4415,6 @@ class AlignmentList(Base):
         self.partitions.remove_partition(file_list=filtered_alns)
         # Update active files
         self.update_active_alignments(active_alns, ns=ns, no_taxa_update=True)
-
-        # If the resulting alignment is empty, raise an Exception
-        if self.alignments == {}:
-            if ns:
-                ns.exception = "EmptyAlignment"
-            raise EmptyAlignment("Alignment is empty after taxa filter")
 
         self._reset_pipes(ns)
 
@@ -4708,7 +4702,7 @@ class AlignmentList(Base):
             aln_obj.locus_length = len(final_seq)
             self.set_partition_from_alignment(aln_obj)
             
-        #Update size
+        # Update size
         self.size = sum((x.locus_length for x in self.alignments.values()))
 
         # Check if input and output tables are the same. If they are,
