@@ -581,7 +581,7 @@
     size_hint_x: None
     width: 80
     text: ".png"
-    values: [".png", ".svg", ".pdf", ".eps", ".ps", ".jpeg", ".tiff"]
+    values: [".png", ".svg", ".pdf", ".eps", ".ps", ".jpeg", ".tiff"] if app.os_platform != "darwin" else [".png", ".svg", ".pdf", ".eps", ".ps"]
 
 <ExtLabel>:
     size_hint_x: None
