@@ -109,7 +109,7 @@ ___
 
 If you are unconvinced that a terminal version would be useful/pratical, check out how easy and fast it is to use TriFusion to process 614 Fasta alignments into phylip and nexus output formats :-):
 
-<img src="https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/gifs/terminal_showcase.gif"/>
+<img src="https://github.com/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/gifs/terminal_demo.gif"/>
 
 ## How to use
 
