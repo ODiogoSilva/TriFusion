@@ -4,7 +4,7 @@
 
 Website: http://odiogosilva.github.io/TriFusion/
 
-:loudspeaker: ANNOUNCING: [TriFusion 1.0.0 is almost live](https://github.com/ODiogoSilva/TriFusion/releases/tag/1.0.0rc1) :tada: :balloon: (Holding out for MacOs)
+:loudspeaker: ANNOUNCING: [TriFusion 1.0.0 is live!](https://github.com/ODiogoSilva/TriFusion/releases/tag/1.0.0rc1) :tada: :balloon:
 
 <img src="https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/images/trifusion_home_screen.png"/>
 
@@ -37,7 +37,7 @@ Here is an overview of what it can do for you across its three main modules.
  - **Graphical visualization** of ortholog data.
  - Exports your orthologs as **protein or nucleotide sequences**.
 
-[Find out more](https://odiogosilva.github.io/TriFusion/#featurette)
+[Find out more](http://odiogosilva.github.io/TriFusion/content/features.html#orto-main)
 
 ### Process - Blazing fast processing of alignment files
 
@@ -51,7 +51,7 @@ Here is an overview of what it can do for you across its three main modules.
  - Create **file/taxa groups** to quickly perform operations on different sets of data.
  - It's **fast** and **memory efficient**. Converting 3,093 files with 376 taxa can be performed in just 30 seconds and using less than 90Mb of RAM memory ([check the benchmarks table](https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks)).
 
-[Find out more](https://odiogosilva.github.io/TriFusion/#featurette)
+[Find out more](http://odiogosilva.github.io/TriFusion/content/features.html#process-main)
 
 ### Statistics - Effortless visual exploration of your data
 
@@ -63,7 +63,7 @@ Here is an overview of what it can do for you across its three main modules.
      - Outlier plots.
 - Publication ready figures
 
-[Find out more](https://odiogosilva.github.io/TriFusion/#featurette)
+[Find out more](http://odiogosilva.github.io/TriFusion/content/features.html#stats-main)
 
 ## Installation
 
@@ -73,20 +73,20 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 #### Linux
 
-- Debian package based ([See list](https://en.wikipedia.org/wiki/Category:Debian-based_distributions)): [TriFusion-0.5.0.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.deb)
+- Debian package based ([See list](https://en.wikipedia.org/wiki/Category:Debian-based_distributions)): [TriFusion-1.0.0rc1.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/1.0.0rc1/TriFusion-v1.0.0rc1.deb)
 
-- RPM package based ([See list](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions)): [TriFusion-0.5.0.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.rpm)
+- RPM package based ([See list](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions)): [TriFusion-1.0.0rc1.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/1.0.0rc1/TriFusion-v1.0.0-rc1.rpm)
 
-- ArchLinux/Manjaro ([See list](https://wiki.archlinux.org/index.php/Arch_based_distributions)): [TriFusion-0.5.0.tar.xz](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR.
+- ArchLinux/Manjaro ([See list](https://wiki.archlinux.org/index.php/Arch_based_distributions)): [TriFusion-1.0.0.tar.xz](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR.
 
 #### MacOS
 
-- [TriFusion-0.5.0.app.zip](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-MacOS.app.zip)
+- [TriFusion-1.0.0rc1.app.zip](https://github.com/ODiogoSilva/TriFusion/releases/download/1.0.0rc1/TriFusion-v1.0.0rc1.app.zip)
 
 #### Windows
 
-- [TriFusion-0.5.0 64bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win64.msi)
-- [TriFusion-0.5.0 32bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win32.msi)
+- [TriFusion-1.0.0rc1 64bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/1.0.0rc1/TriFusion-v1.0.0rc1-Win64.msi)
+- [TriFusion-1.0.0rc1 32bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/1.0.0rc1/TriFusion-v1.0.0rc1-Win32.msi)
 
 ##### Note for Windows 8.x and 10 users:
 
@@ -113,7 +113,7 @@ If you are unconvinced that a terminal version would be useful/pratical, check o
 
 ## How to use
 
-Tutorials on how to use TriFusion for its many tasks can be perused [here](http://odiogosilva.github.io/TriFusion/#tutorials).
+Tutorials on how to use TriFusion for its many tasks can be perused [here](http://trifusion.readthedocs.io/en/latest/).
 
 ## Documentation
 
