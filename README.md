@@ -75,7 +75,7 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 - Debian package based ([See list](https://en.wikipedia.org/wiki/Category:Debian-based_distributions)): [TriFusion-1.0.0rc1.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/1.0.0rc1/TriFusion-v1.0.0rc1.deb)
 
-- RPM package based ([See list](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions)): [TriFusion-1.0.0rc1.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/1.0.0rc1/TriFusion-v1.0.0-rc1.rpm)
+- RPM package based ([See list](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions)): [TriFusion-1.0.0rc1.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/1.0.0rc1/TriFusion-v1.0.0rc1.rpm)
 
 - ArchLinux/Manjaro ([See list](https://wiki.archlinux.org/index.php/Arch_based_distributions)): [TriFusion-1.0.0.tar.xz](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR.
 
