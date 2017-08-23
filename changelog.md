@@ -1,5 +1,13 @@
 # Changelog for upcoming 1.0.0 release
 
+## Bug fixes
+
+### Process
+
+- Improved recognition of Nexus interleave information [1.0.0rc1.dev1].
+
+# Changelog for upcoming 1.0.0rc1 release
+
 ## New Features
 
 ## General

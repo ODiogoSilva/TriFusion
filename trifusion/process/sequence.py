@@ -2500,10 +2500,15 @@ class Alignment(Base):
             # will be necessary for efficient interleave parsing
             if interleave == None:
                 try:
-                    interleave = re.search(r"interleave=(.+?) ",
+                    interleave = re.search(r"interleave=(.+?)[;, ]",
                                            line).group(1).lower()
                     interleave = True if interleave.strip() == "yes" \
                         else False
+                    # Checks if the interleave keyword is present without the
+                    # option specified. In this case, the defaut option is
+                    # "no" which means no interleave.
+                    if not interleave and "interleave" in line:
+                        interleave = False
                 except AttributeError:
                     pass
 
