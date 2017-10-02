@@ -273,9 +273,11 @@
                     <ul>
                       <li> Add one of the following PPAs:</li>
                         <pre><code class="shell"># Stable release
-  sudo add-apt-repository ppa:o-diogosilva/trifusion
-  # Daily release
-  sudo add-apt-repository ppa:o-diogosilva/trifusion-daily</code></pre>
+sudo add-apt-repository ppa:o-diogosilva/trifusion
+# Daily release
+sudo add-apt-repository ppa:o-diogosilva/trifusion-daily</code></pre>
+                      <li>Add the Kivy PPA</li>
+                        <pre><code class="shell">sudo add-apt-repository ppa:kivy-team/kivy</code></pre>
                       <li> Update your package list: </li>
                       <pre><code class="shell">sudo apt update</code></pre>
                       <li>Install/Update TriFusion:</li>
@@ -286,9 +288,9 @@
                     <ul>
                       <li>Add one of the following PPAs manually to the sources.list file</li>
                       <pre><code class="shell"># Stable release
-  http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main
-  # Daily release
-  http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main</code></pre>
+http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main
+# Daily release
+http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main</code></pre>
                       <li>Add the GPG key to your apt keyring</li>
                       <pre><code class="shell">sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D4F1E8E6</code></pre>
                       <li>Refresh your package list and install TriFusion</li>
