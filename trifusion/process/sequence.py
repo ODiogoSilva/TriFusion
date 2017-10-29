@@ -6502,6 +6502,8 @@ class AlignmentList(Base):
                     if not fh:
                         continue
 
+                    aln_obj = self.alignment_idx[aln_idx]
+
                     self._update_pipes(ns, pbar, value=c,
                                        msg="Writing Phylip file "
                                            "{}".format(aln_obj.name))
