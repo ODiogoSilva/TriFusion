@@ -525,7 +525,7 @@ class Partitions(object):
                                    file_name=file_name)
         # If, for some reason, the current line cannot be interpreted as a
         # charset line, ignore it.
-        except IndexError:
+        except (IndexError, ValueError):
             if return_res:
                 return None
             else:
