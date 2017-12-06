@@ -9,7 +9,7 @@ import trifusion
 
 VERSION = trifusion.__version__
 
-with open('README.rst') as f:
+with open('README.md') as f:
     readme = f.read()
 
 
@@ -74,7 +74,7 @@ setup(
                  "Programming Language :: Python",
                  "Programming Language :: Python :: 2.7",
                  "Topic :: Scientific/Engineering :: Bio-Informatics"],
-    scripts=mcl_file,
+    data_files=mcl_file,
     entry_points={
         "gui_scripts": [
             "TriFusion = trifusion.TriFusion:gui_exec"
