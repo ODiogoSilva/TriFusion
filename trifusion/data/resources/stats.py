@@ -29,18 +29,29 @@ stats_compliant = {
      "active_bt": "avg",
      "single_gene": None},
 
+    "Proportion of nucleotides or residues gn":
+    {"args1": {"plt_idx": "Proportion of nucleotides or residues sp"},
+     "args2": {"plt_idx": "Proportion of nucleotides or residues"},
+     "active_bt": "gene",
+     "single_gene": {"plt_idx": "Proportion of nucleotides or residues gn"}},
+
     "Proportion of nucleotides or residues":
-    {"args1": {"plt_idx": "Proportion of nucleotides or residues"
-                          " sp"},
+    {"args1": {"plt_idx": "Proportion of nucleotides or residues sp"},
      "args2": None,
      "active_bt": "avg",
-     "single_gene": None},
+     "single_gene": {"plt_idx": "Proportion of nucleotides or residues gn"}},
 
     "Proportion of nucleotides or residues sp":
     {"args1": None,
      "args2": {"plt_idx": "Proportion of nucleotides or residues"},
      "active_bt": "sp",
-     "single_gene": None},
+     "single_gene": {"plt_idx": "Proportion of nucleotides or residues gn"}},
+
+    "Sequence conservation gn":
+    {"args1": None,
+     "args2": None,
+     "active_bt": "gene",
+     "single_gene": {"plt_idx": "Sequence conservation gn"}},
 
     "Pairwise sequence similarity":
     {"args1": {"plt_idx": "Pairwise sequence similarity sp"},
@@ -162,7 +173,6 @@ stats_compliant = {
      "active_bt": "avg",
      "single_gene": None}
 }
-
 
 
 __author__ = "Diogo N. Silva"

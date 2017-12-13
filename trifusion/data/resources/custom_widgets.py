@@ -1151,6 +1151,10 @@ class StatsBox(BoxLayout):
     pass
 
 
+class SequenceConservation(StatsBox):
+    pass
+
+
 class SequenceSimilarity(StatsBox):
     pass
 

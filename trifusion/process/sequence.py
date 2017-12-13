@@ -7910,6 +7910,100 @@ class AlignmentList(Base):
                 "table_header": [ax_xlabel, "Frequency"]}
 
     @check_data
+    def sequence_conservation_gnp(self, gene_name, window_size, ns=None):
+        """
+
+        """
+
+        aln_obj = self.retrieve_alignment(gene_name)
+
+        if 0 < window_size < 1:
+            step = int(window_size * aln_obj.locus_length)
+        else:
+            step = int(window_size)
+
+        data = []
+        labels = []
+
+        chars = dna_chars if aln_obj.sequence_code[0] == "DNA" else \
+            list(aminoacid_table.keys())
+        data_storage = OrderedDict((x, []) for x in range(len(chars)))
+
+        self._set_pipes(ns, None, total=aln_obj.locus_length, ignore_sa=True)
+
+        for i in range(0, aln_obj.locus_length, step):
+
+            self._update_pipes(ns, None, value=i)
+
+            seqs = np.array([[y for y in x[i:i + step]] for x in
+                             aln_obj.iter_sequences()])
+            char_counts = Counter([o.lower() for j in seqs for o in j
+                                   if 0 != aln_obj.sequence_code[1] and
+                                   o != self.gap_symbol]).most_common()
+
+            total = float(sum([x[1] for x in char_counts]))
+            labels.append("{}_{}".format(i, char_counts[0][0]))
+
+            temp = []
+            for i in range(len(chars)):
+                try:
+                    data_storage[i].append(float(char_counts[i][1]) / total)
+                except IndexError:
+                    data_storage[i].append(0)
+
+        data = np.array(data_storage.values())
+
+        return {"data": data,
+                "labels": labels,
+                "width": 1}
+
+    @check_data
+    def characters_proportion_gene(self, gene_name, window_size, ns=None):
+        """
+        """
+
+        aln_obj = self.retrieve_alignment(gene_name)
+
+        if 0 < window_size < 1:
+            step = int(window_size * aln_obj.locus_length)
+        else:
+            step = int(window_size)
+
+        data = []
+        labels = []
+
+        chars = dna_chars if aln_obj.sequence_code[0] == "DNA" else \
+            list(aminoacid_table.keys())
+        data_storage = OrderedDict((x, []) for x in chars)
+
+        self._set_pipes(ns, None, total=aln_obj.locus_length, ignore_sa=True)
+
+        for i in range(0, aln_obj.locus_length, step):
+
+            self._update_pipes(ns, None, value=i)
+
+            seqs = np.array([[y for y in x[i:i + step]] for x in
+                             aln_obj.iter_sequences()])
+            char_counts = Counter([o.lower() for j in seqs for o in j
+                                   if 0 != aln_obj.sequence_code[1] and
+                                   o != self.gap_symbol])
+
+            total = float(sum(char_counts.values()))
+            labels.append("{}_{}".format(i, i + step))
+
+            for k, val in data_storage.items():
+                if k in char_counts:
+                    val.append((float(char_counts[k]) / total) * 100)
+                else:
+                    val.append(0)
+
+        data = np.array(data_storage.values())
+
+        return {"data": data,
+                "labels": labels,
+                "legend": chars}
+
+    @check_data
     def characters_proportion(self, ns=None):
         """Creates data for the proportion of nt/aa for the data set.
 

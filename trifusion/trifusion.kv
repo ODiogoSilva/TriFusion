@@ -7617,12 +7617,21 @@
     TFButtonOff:
         text: "Proportion of nucleotides or residues"
         on_release:
-            app.stats_select_plot(None, "Proportion of nucleotides or residues sp", "Proportion of nucleotides or residues")
+            app.stats_select_plot("Proportion of nucleotides or residues gn", "Proportion of nucleotides or residues sp", "Proportion of nucleotides or residues")
     HelpButton:
         on_release:
             app.dialog_general_info("info_nucleotide_proportion")
 
 ## Polymorphism and Variation
+<SequenceConservation>:
+    TFButtonOff:
+        text: "Sequence conservation"
+        on_release:
+            app.stats_select_plot("Sequence conservation gn", None, None)
+    HelpButton:
+        on_release:
+            app.dialog_general_info("gene_conservation")
+
 <SequenceSimilarity>:
     TFButtonOff:
         text: "Pairwise sequence similarity"
@@ -7631,7 +7640,6 @@
     HelpButton:
         on_release:
             app.dialog_general_info("pairwise_seq_similarity")
-
 
 <SegregatingSites>:
     TFButtonOff:
