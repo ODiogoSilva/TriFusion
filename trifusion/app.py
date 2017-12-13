@@ -597,6 +597,8 @@ class TriFusionApp(App):
             [bar_plot, "char_proportions.png"],
             "Proportion of nucleotides or residues sp":
             [stacked_bar_plot, "char_proportions_sp.png"],
+            "Proportion of nucleotides or residues gn":
+            [stacked_bar_plot, "char_proportions_gn.png"],
             "Pairwise sequence similarity":
             [histogram_plot, "similarity_distribution.png"],
             "Pairwise sequence similarity sp":
@@ -10692,12 +10694,14 @@ class TriFusionApp(App):
         # List of gene specific plots. These are always removed
         gene_specific = {
             "Pairwise sequence similarity gn":
-            "similarity_distribution_gn.png",
+                "similarity_distribution_gn.png",
             "Segregating sites gn": "segregating_sites_gn.png",
             "Allele Frequency Spectrum gn":
-            "allele_frequency_spectrum_gn.png",
+                "allele_frequency_spectrum_gn.png",
             "Sequence conservation gn":
-            "seq_conservation_gn.png"
+                "seq_conservation_gn.png",
+            "Proportion of nucleotides or residues gn":
+                "char_proportions_gn.png",
         }
 
         # Remove gene specific plots if they exist

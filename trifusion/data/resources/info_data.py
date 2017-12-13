@@ -220,8 +220,14 @@ informative_storage = {
          "Protein)"],
     "info_nucleotide_proportion":
         ["[b]Nucleotide or residue proportion - Help[/b]",
-         "[color=37abc8ff][b]Available options:[/color] Per species; Average["
-         "/b]\n\n"
+         "[color=37abc8ff][b]Available options:[/color] Single gene; "
+         "Per species; Average[/b]\n\n"
+         "[color=37abc8ff][b]Single gene[/color][/b]: Stacked bar plot with"
+         " the proportions of each nucleotide (DNA) or residue (Protein) "
+         "for each position in the sequence, considering the selected sliding"
+         "window.\n\n"
+         "[b]y-axis:[/b] Proportion of nucleotide or residue\n"
+         "[b]x-axis:[/b] Position in the sequence\n\n"
          "[color=37abc8ff][b]Per species[/color][/b]: Stacked bar "
          "plot with the proportions of each nucleotide (DNA) or residue ("
          "Protein) for each species in the active data set. A sorted color "
@@ -248,14 +254,14 @@ informative_storage = {
     "gene_conservation":
         ["[b]Gene conservation - Help[/b]",
          "[color=37abc8ff][b]Available options:[/color] Single gene;\n\n"
-         "[color=37abc8ff][b]Single gene[/color][/b]: Sliding plot with the"
-         "degree of conservation of sequence. It starts by plotting the "
-         "proportion of the most common variant at the bottom and then the"
+         "[color=37abc8ff][b]Single gene[/color][/b]: Sliding plot with the "
+         "degree of conservation along the sequence. It starts by plotting the"
+         " proportion of the most common variant at the bottom and then the"
          " remaining variants in order of proportion. This means that the"
          " color of the bars is not associated with any particular character."
          " Instead it is associated with the ranking of a variant in any given"
-         "window. The most common variant for any given window is given at"
-         "the end of the x-axis labels, preceded by an underscore \n\n"
+         " window. The most common variant for any given window is given at"
+         " the end of the x-axis labels, preceded by an underscore \n\n"
          "[b]y-axis:[/b] Proportion of variants\n"
          "[b]x-axis:[/b] Position in the sequence"],
     "pairwise_seq_similarity":

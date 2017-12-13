@@ -7922,7 +7922,6 @@ class AlignmentList(Base):
         else:
             step = int(window_size)
 
-        data = []
         labels = []
 
         chars = dna_chars if aln_obj.sequence_code[0] == "DNA" else \
@@ -7944,18 +7943,18 @@ class AlignmentList(Base):
             total = float(sum([x[1] for x in char_counts]))
             labels.append("{}_{}".format(i, char_counts[0][0]))
 
-            temp = []
-            for i in range(len(chars)):
+            for j in range(len(chars)):
                 try:
-                    data_storage[i].append(float(char_counts[i][1]) / total)
+                    data_storage[j].append(float(char_counts[j][1]) / total)
                 except IndexError:
-                    data_storage[i].append(0)
+                    data_storage[j].append(0)
 
         data = np.array(data_storage.values())
 
         return {"data": data,
                 "labels": labels,
-                "width": 1}
+                "width": 1,
+                "ax_names": ["Gene position", "Ranked variant proportion"]}
 
     @check_data
     def characters_proportion_gene(self, gene_name, window_size, ns=None):
@@ -7969,7 +7968,6 @@ class AlignmentList(Base):
         else:
             step = int(window_size)
 
-        data = []
         labels = []
 
         chars = dna_chars if aln_obj.sequence_code[0] == "DNA" else \
@@ -7999,9 +7997,14 @@ class AlignmentList(Base):
 
         data = np.array(data_storage.values())
 
+        ax_xlabel = "Nucleotide" if self.sequence_code[0] == "DNA" \
+            else "Amino acid"
+
         return {"data": data,
                 "labels": labels,
-                "legend": chars}
+                "legend": chars,
+                "ax_names": ["Gene position", ax_xlabel + " proportion"],
+                "table_header": [""] + list(data_storage.keys())}
 
     @check_data
     def characters_proportion(self, ns=None):
