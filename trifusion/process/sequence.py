@@ -1374,7 +1374,7 @@ class Alignment(Base):
         link attribute between the sqlite database and the remaining methods
         that require information on the sequence data. This also removes
         any non alpha numeric characters the table name might have and ensures
-        that it starts with a aphabetic character to avoid a database error
+        that it starts with a alphabetic character to avoid a database error
         """
 
         self.master_table = "alignment_data"
@@ -7916,6 +7916,7 @@ class AlignmentList(Base):
         """
 
         aln_obj = self.retrieve_alignment(gene_name)
+        missing_chars = [aln_obj.sequence_code[1], self.gap_symbol, "?"]
 
         if 0 < window_size < 1:
             step = int(window_size * aln_obj.locus_length)
@@ -7924,30 +7925,60 @@ class AlignmentList(Base):
 
         labels = []
 
-        chars = dna_chars if aln_obj.sequence_code[0] == "DNA" else \
-            list(aminoacid_table.keys())
-        data_storage = OrderedDict((x, []) for x in range(len(chars)))
+        nchars = len(dna_chars) if aln_obj.sequence_code[0] == "DNA" else \
+            len([x for x in aminoacid_table.keys() if x != "x"])
+        
+        data_storage = OrderedDict((x, []) for x in range(nchars))
+        # Temp storage that will store the values for each window
+        temp_data = OrderedDict((x, []) for x in range(nchars))
 
         self._set_pipes(ns, None, total=aln_obj.locus_length, ignore_sa=True)
 
-        for i in range(0, aln_obj.locus_length, step):
+        for p, col in enumerate(self.iter_columns(aln_idx=aln_obj.db_idx)):
 
-            self._update_pipes(ns, None, value=i)
+            self._update_pipes(ns, None, value=p)
 
-            seqs = np.array([[y for y in x[i:i + step]] for x in
-                             aln_obj.iter_sequences()])
-            char_counts = Counter([o.lower() for j in seqs for o in j
-                                   if 0 != aln_obj.sequence_code[1] and
-                                   o != self.gap_symbol]).most_common()
-
+            char_counts = Counter(
+                [x.lower() for x in col[0] if x not in missing_chars]
+            ).most_common()
             total = float(sum([x[1] for x in char_counts]))
-            labels.append("{}_{}".format(i, char_counts[0][0]))
 
-            for j in range(len(chars)):
+            # Add data for current window
+            for i in range(nchars):
                 try:
-                    data_storage[j].append(float(char_counts[j][1]) / total)
+                    temp_data[i].append(float(char_counts[i][1]) / total)
                 except IndexError:
-                    data_storage[j].append(0)
+                    temp_data[i].append(0)
+
+            # At the end of each window perform the average over the values
+            if p % step == 0 and (p or step == 1):
+                # Get average value for previous window
+                for k, val in temp_data.items():
+                    # If variant rank is empty, add 0 to array
+                    if val:
+                        mean_val = float(sum(val)) / float(len(val))
+                    else:
+                        mean_val = 0
+                    data_storage[k].append(mean_val)
+
+                # Reset temp_data for next window
+                temp_data = OrderedDict((x, []) for x in range(nchars))
+
+                # Add label for current window based on the starting position
+                labels.append("{}".format(p))
+
+        # Get average for last window, if any
+        if any(temp_data.values()):
+            for k, val in temp_data.items():
+                # If variant rank is empty, add 0 to array
+                if val:
+                    mean_val = float(sum(val)) / float(len(val))
+                else:
+                    mean_val = 0
+                data_storage[k].append(mean_val)
+
+            # Add label for current window based on the starting position
+            labels.append("{}".format(p))
 
         data = np.array(data_storage.values())
 
@@ -7984,14 +8015,14 @@ class AlignmentList(Base):
                              aln_obj.iter_sequences()])
             char_counts = Counter([o.lower() for j in seqs for o in j
                                    if 0 != aln_obj.sequence_code[1] and
-                                   o != self.gap_symbol])
+                                   o != self.gap_symbol and o != "?"])
 
             total = float(sum(char_counts.values()))
             labels.append("{}_{}".format(i, i + step))
 
             for k, val in data_storage.items():
                 if k in char_counts:
-                    val.append((float(char_counts[k]) / total) * 100)
+                    val.append(float(char_counts[k]))
                 else:
                     val.append(0)
 
@@ -8003,7 +8034,7 @@ class AlignmentList(Base):
         return {"data": data,
                 "labels": labels,
                 "legend": chars,
-                "ax_names": ["Gene position", ax_xlabel + " proportion"],
+                "ax_names": ["Gene position", ax_xlabel + " counts"],
                 "table_header": [""] + list(data_storage.keys())}
 
     @check_data
