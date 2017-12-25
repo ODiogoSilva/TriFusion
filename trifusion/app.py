@@ -3808,6 +3808,12 @@ class TriFusionApp(App):
                     gl_wgt.add_widget(LoadMoreBt(tab=panel))
             except IndexError:
                 return
+        else:
+            try:
+                if self.alignment_list.taxa_names[self.count_taxon + 1]:
+                    gl_wgt.add_widget(LoadMoreBt(tab=panel))
+            except IndexError:
+                return
 
     def sidepanel_remove_moreopts(self):
         """
@@ -5610,7 +5616,7 @@ class TriFusionApp(App):
         self.active_file_list = []
         self.sequence_types = ""
         self.MAX_FILE_BUTTON = 20
-        self.MAX_TAXON_BUTTON = 20
+        self.MAX_TAXON_BUTTON = 100
         self.MAX_PARTITION_BUTTON = 20
         self.MAX_SEARCH = {"files": 20, "taxa": 20, "partitions": 20}
         self.found_items = {"files": [], "taxa": [], "partitions": []}
