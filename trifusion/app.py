@@ -4345,6 +4345,12 @@ class TriFusionApp(App):
             grid = self.root.ids.partition_sl
             sv = self.root.ids.sv_partition
             max_its = self.MAX_PARTITION_BUTTON
+        elif tab == "taxa":
+            c = self.count_taxon
+            lst = self.alignment_list.taxa_names
+            grid = self.root.ids.taxa_sl
+            sv = self.root.ids.sv_sp
+            max_its = self.MAX_TAXON_BUTTON
 
         start = float(c)
         max_buttons = max_its + c
@@ -4356,9 +4362,14 @@ class TriFusionApp(App):
             try:
                 if tab == "files":
                     infile = basename(lst[c])
+                    self.count_files += 1
                     self.sidepanel_add_bts(infile, "Files")
+                elif tab == "taxa":
+                    self.count_taxon += 1
+                    self.sidepanel_add_bts(lst[c], "Taxa")
                 elif tab == "partitions":
                     part, fls = lst[c]
+                    self.count_partitions += 1
                     self.sidepanel_add_bts(part, "Partitions",
                                            partition_fls=fls)
                 c += 1
@@ -4440,6 +4451,14 @@ class TriFusionApp(App):
                 # Prevents duplicate taxa from being entered
                 if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
                     self.sidepanel_add_bts(tx, "Taxa")
+
+            else:
+                # check if morebt is already present
+                if not [x for x in self.root.ids.taxa_sl.children if
+                        isinstance(x, LoadMoreBt)]:
+                    self.root.ids.taxa_sl.add_widget(LoadMoreBt(
+                        tab="taxa"))
+                return
 
     def repopulate_partitions(self):
         """
