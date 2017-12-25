@@ -704,7 +704,7 @@ class TriFusionApp(App):
     tab of the sidepanel. Prevents the loading of all file Buttons in
     very large datasets.
     """
-    MAX_TAXON_BUTTON = NumericProperty(20)
+    MAX_TAXON_BUTTON = NumericProperty(100)
     """
     Integer with the maximum number of taxa Buttons allowed in the "Taxa"
     tab of the sidepanel. Prevents the loading of all taxon Buttons in
