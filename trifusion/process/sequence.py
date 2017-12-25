@@ -7988,7 +7988,8 @@ class AlignmentList(Base):
                 "ax_names": ["Gene position", "Ranked variant proportion"]}
 
     @check_data
-    def characters_proportion_gene(self, gene_name, window_size, ns=None):
+    def characters_proportion_gene(self, gene_name, window_size,
+                                   proportions=False, ns=None):
         """
         """
 
@@ -8022,7 +8023,10 @@ class AlignmentList(Base):
 
             for k, val in data_storage.items():
                 if k in char_counts:
-                    val.append(float(char_counts[k]))
+                    if proportions:
+                        val.append(float(char_counts[k]) / total)
+                    else:
+                        val.append(float(char_counts[k]))
                 else:
                     val.append(0)
 

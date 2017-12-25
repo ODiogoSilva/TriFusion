@@ -6742,6 +6742,7 @@
             app.stats_sethline(slider.value, root.plt_file, self.active)
 
 <PropSwitcher>:
+    kwargs: None
     padding: 5
     BoxLayout:
         size_hint_x: None
@@ -6755,6 +6756,9 @@
             plt_idx: ""
             id: abs
             on_release:
+                if root.kwargs:\
+                root.kwargs.update({"proportions": False}); app.stats_show_plot(self.plt_idx, root.kwargs)
+                else:\
                 app.stats_show_plot(self.plt_idx)
         Label:
             text: "Percentage"
@@ -6765,6 +6769,9 @@
             plt_idx: ""
             id: proportion
             on_release:
+                if root.kwargs:\
+                root.kwargs.update({"proportions": True}); app.stats_show_plot(self.plt_idx, root.kwargs)
+                else: \
                 app.stats_show_plot(self.plt_idx, {"proportions": True})
     Widget
 

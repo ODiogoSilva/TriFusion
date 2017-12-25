@@ -599,6 +599,8 @@ class TriFusionApp(App):
             [stacked_bar_plot, "char_proportions_sp.png"],
             "Proportion of nucleotides or residues gn":
             [stacked_bar_plot, "char_proportions_gn.png"],
+            "Proportion of nucleotides or residues gn prop":
+            [stacked_bar_plot, "char_proportions_gn.png"],
             "Pairwise sequence similarity":
             [histogram_plot, "similarity_distribution.png"],
             "Pairwise sequence similarity sp":
@@ -10342,7 +10344,8 @@ class TriFusionApp(App):
         Clock.schedule_once(
             lambda x: transfer_wgts(wgts[idx][1], wgts[idx][0]), .32)
 
-    def stats_write_plot(self, plot_data, footer, plt_idx):
+    def stats_write_plot(self, plot_data, footer, plt_idx,
+                         additional_args=None):
         """
         Provided with the data structure and a plt_idx string identifier,
         this function will create the plot file and app variable,
@@ -10422,9 +10425,11 @@ class TriFusionApp(App):
         # List of plots with a switcher between absolute values and
         # proportions
         prop_plots = [["Segregating sites",
-                       "Allele Frequency Spectrum"],
+                       "Allele Frequency Spectrum",
+                       "Proportion of nucleotides or residues gn"],
                       ["Segregating sites prop",
-                       "Allele Frequency Spectrum prop"]]
+                       "Allele Frequency Spectrum prop",
+                       "Proportion of nucleotides or residues gn prop"]]
 
         # List of plots with outlier footer
         outlier_plots = ["Missing data outliers",
@@ -10449,6 +10454,9 @@ class TriFusionApp(App):
         elif plt_idx in prop_plots[0] + prop_plots[1]:
 
             swt = PropSwitcher()
+
+            if additional_args:
+                swt.kwargs = additional_args
 
             try:
                 prop_idx = prop_plots[1][prop_plots[0].index(plt_idx)]
@@ -10727,6 +10735,8 @@ class TriFusionApp(App):
                 "seq_conservation_gn.png",
             "Proportion of nucleotides or residues gn":
                 "char_proportions_gn.png",
+            "Proportion of nucleotides or residues gn prop":
+                "char_proportions_gn.png"
         }
 
         # Remove gene specific plots if they exist
@@ -10773,7 +10783,7 @@ class TriFusionApp(App):
             args1=[self.alignment_list, plt_idx, file_set,
                    list(taxa_set), additional_args,
                    "use_ns"],
-            args2=[plt_idx])
+            args2=[plt_idx, additional_args])
 
         self.toggle_stats_panel(force_close=True)
 

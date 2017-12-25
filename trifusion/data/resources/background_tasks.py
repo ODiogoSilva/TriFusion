@@ -1387,6 +1387,8 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                    main_aln.sequence_conservation_gnp,
                "Proportion of nucleotides or residues gn":
                    main_aln.characters_proportion_gene,
+               "Proportion of nucleotides or residues gn prop":
+                   main_aln.characters_proportion_gene,
                "Proportion of nucleotides or residues":
                    main_aln.characters_proportion,
                "Proportion of nucleotides or residues sp":
