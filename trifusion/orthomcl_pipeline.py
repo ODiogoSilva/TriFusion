@@ -413,6 +413,13 @@ def check_bin_path(bin_path, program):
             program), RED, 1)
 
 
+def check_dirs(dir_path):
+
+    if not os.path.exists(dir_path):
+        print_col("The following path does not exist: {}".format(dir_path),
+                  RED, 1)
+
+
 def main():
 
     # The inclusion of the argument definition in main, makes it possible to
@@ -548,8 +555,10 @@ def main():
         start_time = time.time()
 
         # Arguments
-        input_dir = arg.infile
-        output_dir = arg.output_dir
+        input_dir = os.path.abspath(arg.infile)
+        check_dirs(input_dir)
+        output_dir = os.path.abspath(arg.output_dir)
+
         # name_separator = arg.separator
         min_length = arg.min_length
         max_percent_stop = arg.max_stop
