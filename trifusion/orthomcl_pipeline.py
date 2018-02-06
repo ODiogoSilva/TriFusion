@@ -46,6 +46,7 @@ with warnings.catch_warnings():
         import ortho.orthomclMclToGroups as MclGroups
         from ortho.error_handling import *
         from process.error_handling import KillByUser
+        from __init__ import __version__
     except ImportError:
         from trifusion.process.base import print_col, GREEN, RED, YELLOW
         from trifusion.ortho import OrthomclToolbox as OT
@@ -57,6 +58,7 @@ with warnings.catch_warnings():
         import trifusion.ortho.orthomclMclToGroups as MclGroups
         from trifusion.ortho.error_handling import *
         from trifusion.process.error_handling import KillByUser
+        from trifusion import __version__
 
 
 def install_schema(db_dir):
@@ -422,7 +424,7 @@ def main():
         "TriFusion Orthology search module")
 
     parser.add_argument("-in", dest="infile", type=str,
-                        required=True, help="Provide the path "
+                        help="Provide the path "
                         "to the directory containing the proteome files")
 
     # Execution modes
@@ -520,12 +522,19 @@ def main():
     misc_options.add_argument("-np", dest="cpus", default=1, help="Number of "
                               "CPUs to be used during search operation ("
                               "default is '%(default)s')")
+    misc_options.add_argument("-v", "--version", dest="version",
+                              action="store_const", const=True,
+                              help="Displays software version")
 
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
 
     arg = parser.parse_args()
+
+    if arg.version:
+        print(__version__)
+        sys.exit(1)
 
     # Crete temp directory
     tmp_dir = join(os.getcwd(), ".tmp")

@@ -27,18 +27,21 @@ with warnings.catch_warnings():
     import argparse
     import configparser
     import time
-    import sys
     from glob import glob
 
     try:
         from process.sequence import *
         from base.plotter import *
         from process.base import print_col, GREEN, RED, YELLOW, CleanUp
+        from process.error_handling import EmptyData
+        from __init__ import __version__
     except ImportError:
         from trifusion.process.sequence import *
         from trifusion.base.plotter import *
         from trifusion.process.base import print_col, GREEN, RED, YELLOW,\
             CleanUp
+        from trifusion.process.error_handling import EmptyData
+        from trifusion import __version__
 
 
 class HandledException(Exception):
@@ -128,11 +131,18 @@ def main():
     main_exec.add_argument("-quiet", dest="quiet", action="store_const",
                            const=True, default=False, help="Removes all"
                            " terminal output")
+    main_exec.add_argument("-v", "--version", dest="version",
+                               action="store_const", const=True,
+                               help="Displays software version")
 
     arg = parser.parse_args()
 
     if len(sys.argv) == 1:
         parser.print_help()
+        sys.exit(1)
+
+    if arg.version:
+        print(__version__)
         sys.exit(1)
 
     main_checks(arg)

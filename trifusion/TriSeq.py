@@ -40,6 +40,7 @@ with warnings.catch_warnings():
             check_infile_list
         from progressbar import ProgressBar, Timer, Bar, Percentage, \
             SimpleProgress
+        from __init__ import __version__
     except ImportError:
         from trifusion.process.base import print_col, RED, GREEN, YELLOW,\
             CleanUp
@@ -50,6 +51,7 @@ with warnings.catch_warnings():
             post_aln_checks, check_infile_list
         from trifusion.progressbar import ProgressBar, Timer, Bar,\
             Percentage, SimpleProgress
+        from trifusion import __version__
 
 
 def gen_wgt(msg):
@@ -478,12 +480,19 @@ def get_args(arg_list=None, unittest=False):
     miscellaneous.add_argument("-quiet", dest="quiet", action="store_const",
                                const=True, default=False, help="Removes all "
                                "terminal output")
+    miscellaneous.add_argument("-v", "--version", dest="version",
+                               action="store_const", const=True,
+                               help="Displays software version")
 
     args = parser.parse_args(arg_list)
 
     # Print help when no arguments are provided
     if len(sys.argv) == 1 and not unittest:
         parser.print_help()
+        sys.exit(1)
+
+    if args.version:
+        print(__version__)
         sys.exit(1)
 
     return args
