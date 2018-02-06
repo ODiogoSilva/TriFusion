@@ -5092,6 +5092,10 @@ class TriFusionApp(App):
 
             if tx in self.alignment_list.taxa_names:
 
+                if tx not in self.original_tx_inf:
+                    self.original_tx_inf[tx] = self.get_taxon_information(
+                        tx, self.alignment_list.all_alignments)
+
                 # Get the information from the content list. This is done
                 # when calling the popup to avoid repeating this
                 # operation every time taxa  or files are added/removed.
