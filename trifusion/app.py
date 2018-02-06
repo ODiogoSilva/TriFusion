@@ -6808,6 +6808,11 @@ class TriFusionApp(App):
             self.current_table = td
             self.gene_table = table
 
+        def display_manual_trigger(plt_wgt):
+
+            plt_wgt.clear_widgets()
+            plt_wgt.add_widget(ManualStatsAnchor())
+
         def check_process(p, ldg_wgt, plt_wgt, ns, dt):
 
             try:
@@ -6937,6 +6942,15 @@ class TriFusionApp(App):
                     prepare_display(plot_wgt, scatter_wgt)
                     display_table(plot_wgt)
                 return
+
+        # Check if the number of active taxa surpasses a given threshold.
+        # If yes, then the summary statistics will not be automatically
+        # triggered. Instead, a button will be provided to get the statistics
+        # if the user wishes. This is done to prevent the app from freezing
+        # when the number of taxa is very large.
+        if len(taxa_set) > 1000 and not force:
+            display_manual_trigger(plot_wgt)
+            return
 
         # Prepare screen by removing any potential plot widgets and
         # changing some properties of the scatter layout

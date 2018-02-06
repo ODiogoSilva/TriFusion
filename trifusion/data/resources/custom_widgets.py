@@ -986,6 +986,10 @@ class StatsSummary(BoxLayout):
     pass
 
 
+class ManualStatsAnchor(AnchorLayout):
+    pass
+
+
 class NoDataLabel(Label):
     pass
 

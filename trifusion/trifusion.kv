@@ -6810,6 +6810,34 @@
                 app.stats_handle_outliers("view", root.ds_type)
     Widget
 
+
+<ManualStatsAnchor>:
+    anchor_x: "center"
+    anchor_y: "center"
+    BoxLayout:
+        size_hint_y: None
+        height: 100
+        orientation: "vertical"
+        padding: 20, 0, 20, 0
+        Label:
+            valign: "middle"
+            halign: "center"
+            text_size: self.size
+            markup: True
+            bold: True
+            color: .7, .7, .7, .7
+            text: "TriFusion detected a large number of taxa in the active data set and automatic computation of summary statistics has been turned off."
+        BoxLayout:
+            Widget
+            TFButton:
+                size_hint: None,None
+                size: 200, 30
+                text: "Trigger statistics"
+                on_release:
+                    app.statistics_show_summary(force=True)
+            Widget
+
+
 <StatsMoreBt>:
     anchor_x: "left"
     size_hint_y: None
