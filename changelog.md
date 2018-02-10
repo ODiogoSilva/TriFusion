@@ -34,6 +34,13 @@ for orthomcl_pipeline CLI interface.
 data sets with a large number of taxa (> 1000). Calculation of summary
 statistics can still be triggered manually.
 
+## Bug Fixes
+
+### Orthology
+
+- Fixed orthomcl_pipeline error when the input proteomes where not
+properly sanitized (i.e., contain whitespace).
+
 # Changelog for 1.0.0 release
 
 ## Bug fixes

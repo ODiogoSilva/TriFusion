@@ -197,6 +197,7 @@ def adjust_fasta(file_list, dest, nm=None):
     for proteome in file_list:
         # Get code for proteome
         code_name = proteome.split(os.path.sep)[-1].split(".")[0]
+        code_name = "_".join(code_name.split())
 
         if nm:
             if nm.stop:
@@ -218,6 +219,7 @@ def adjust_fasta(file_list, dest, nm=None):
 
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
                             ".fasta"
+        protome_file_name = "_".join(protome_file_name.split())
 
         pfile = basename(proteome.split(".")[0] + "_mod.fas")
         shutil.move(join(dest, "backstage_files", pfile),
