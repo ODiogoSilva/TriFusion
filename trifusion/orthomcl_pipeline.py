@@ -208,9 +208,10 @@ def adjust_fasta(file_list, dest, nm=None):
         # Check the unique ID field
         try:
             unique_id = check_unique_field(proteome, True, nm)
-        except (IOError, OSError):
+        except Exception as e:
             print_col("The file {} could not be parsed".format(proteome),
                       YELLOW, 1)
+            #TODO: Log errors on file
             continue
 
         # Adjust fasta
