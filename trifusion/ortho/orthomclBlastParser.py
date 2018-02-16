@@ -36,8 +36,8 @@ def get_genes(files_dir):
     for fasta in files_list:
 
         # get taxon from file name
-        splitted = fasta.split(".")
-        taxon = splitted[0]
+        # splitted = fasta.split(".")
+        taxon = os.path.splitext(fasta)[0]
 
         # open file
         fasta_file = open(os.path.join(files_dir, fasta), "r")

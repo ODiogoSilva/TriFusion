@@ -432,7 +432,8 @@ def interpolation_plot(data, title=None, ax_names=None):
 
 @set_props
 def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
-                     ax_names=None, normalize=False, normalize_factor=None):
+                     ax_names=None, normalize=False, normalize_factor=None,
+                     width=0.8):
     """Creates a stacked bar plot.
 
     Parameters
@@ -489,10 +490,8 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
     bottoms = np.cumsum(np.vstack((np.zeros(data.shape[1]), data)),
                         axis=0)[:-1]
 
-    w = .8
-
     # Get x positions
-    xpos = [x + (w / 2) for x in range(len(labels))]
+    xpos = [x + (width / 2) for x in range(len(labels))]
 
     for c, d in enumerate(data):
 
@@ -503,14 +502,21 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
             c1 = c if c < 19 else c - 20
             clr = cm.Vega20c(c1, 1)
 
-        if c == 0:
-            bplot = ax.bar(xpos, d, w, color=clr, label=legend[c], alpha=.9)
+        if legend:
+            current_lgd = legend[c]
         else:
-            bplot = ax.bar(xpos, d, w, color=clr, label=legend[c], alpha=.9,
-                           bottom=bottoms[c])
+            current_lgd = None
+
+        if c == 0:
+            bplot = ax.bar(xpos, d, width, color=clr, label=current_lgd,
+                           alpha=.9)
+        else:
+            bplot = ax.bar(xpos, d, width, color=clr, label=current_lgd,
+                           alpha=.9, bottom=bottoms[c])
 
     # Set x labels
-    plt.xticks([x + (w / 2) for x in xpos], labels, ha="right", rotation=45)
+    plt.xticks([x + (width / 2) for x in xpos], labels, ha="right",
+               rotation=45)
 
     # Set legend
     if legend:
@@ -522,6 +528,8 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
         lgd = plt.legend(loc=7, fancybox=True,
                          shadow=True, framealpha=.8, ncol=cols,
                          borderaxespad=borderpad)
+    else:
+        lgd = None
 
     # Generate table structure
     if table_header:
@@ -534,7 +542,7 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
                                       for x, y in zip(*[data_original, data]))))
     else:
         for i, lbl in enumerate(labels):
-            table.append([lbl] + [int(x[i]) for x in data])
+            table.append([lbl] + [x[i] for x in data])
 
     return fig, lgd, table
 
@@ -956,7 +964,7 @@ def sliding_window(data, window_size, ax_names=None, table_header=None,
 
     ax.set_axis_bgcolor("#f2f2f2")
 
-    xnew = np.linspace(x.min(), x.max(), 500)
+    xnew = np.linspace(x.min(), x.max(), 100)
     xsmooth = spline(x, data, xnew)
 
     # p = ax.plot(xnew, xsmooth)

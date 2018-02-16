@@ -44,6 +44,7 @@ class ExpectingTestCase(unittest.TestCase):
             self._fail(self.failureException(msg))
         self._num_expectations += 1
 
+
 temp_dir = ".temp"
 sql_db = ".temp/sequencedb"
 

@@ -46,6 +46,7 @@ with warnings.catch_warnings():
         import ortho.orthomclMclToGroups as MclGroups
         from ortho.error_handling import *
         from process.error_handling import KillByUser
+        from __init__ import __version__
     except ImportError:
         from trifusion.process.base import print_col, GREEN, RED, YELLOW
         from trifusion.ortho import OrthomclToolbox as OT
@@ -57,6 +58,7 @@ with warnings.catch_warnings():
         import trifusion.ortho.orthomclMclToGroups as MclGroups
         from trifusion.ortho.error_handling import *
         from trifusion.process.error_handling import KillByUser
+        from trifusion import __version__
 
 
 def install_schema(db_dir):
@@ -195,6 +197,7 @@ def adjust_fasta(file_list, dest, nm=None):
     for proteome in file_list:
         # Get code for proteome
         code_name = proteome.split(os.path.sep)[-1].split(".")[0]
+        code_name = "_".join(code_name.split())
 
         if nm:
             if nm.stop:
@@ -205,9 +208,10 @@ def adjust_fasta(file_list, dest, nm=None):
         # Check the unique ID field
         try:
             unique_id = check_unique_field(proteome, True, nm)
-        except (IOError, OSError):
+        except Exception as e:
             print_col("The file {} could not be parsed".format(proteome),
                       YELLOW, 1)
+            #TODO: Log errors on file
             continue
 
         # Adjust fasta
@@ -216,6 +220,7 @@ def adjust_fasta(file_list, dest, nm=None):
 
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
                             ".fasta"
+        protome_file_name = "_".join(protome_file_name.split())
 
         pfile = basename(proteome.split(".")[0] + "_mod.fas")
         shutil.move(join(dest, "backstage_files", pfile),
@@ -411,6 +416,13 @@ def check_bin_path(bin_path, program):
             program), RED, 1)
 
 
+def check_dirs(dir_path):
+
+    if not os.path.exists(dir_path):
+        print_col("The following path does not exist: {}".format(dir_path),
+                  RED, 1)
+
+
 def main():
 
     # The inclusion of the argument definition in main, makes it possible to
@@ -422,7 +434,7 @@ def main():
         "TriFusion Orthology search module")
 
     parser.add_argument("-in", dest="infile", type=str,
-                        required=True, help="Provide the path "
+                        help="Provide the path "
                         "to the directory containing the proteome files")
 
     # Execution modes
@@ -520,12 +532,19 @@ def main():
     misc_options.add_argument("-np", dest="cpus", default=1, help="Number of "
                               "CPUs to be used during search operation ("
                               "default is '%(default)s')")
+    misc_options.add_argument("-v", "--version", dest="version",
+                              action="store_const", const=True,
+                              help="Displays software version")
 
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
 
     arg = parser.parse_args()
+
+    if arg.version:
+        print(__version__)
+        sys.exit(1)
 
     # Crete temp directory
     tmp_dir = join(os.getcwd(), ".tmp")
@@ -539,8 +558,10 @@ def main():
         start_time = time.time()
 
         # Arguments
-        input_dir = arg.infile
-        output_dir = arg.output_dir
+        input_dir = os.path.abspath(arg.infile)
+        check_dirs(input_dir)
+        output_dir = os.path.abspath(arg.output_dir)
+
         # name_separator = arg.separator
         min_length = arg.min_length
         max_percent_stop = arg.max_stop

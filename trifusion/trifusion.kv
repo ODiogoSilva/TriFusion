@@ -6742,6 +6742,7 @@
             app.stats_sethline(slider.value, root.plt_file, self.active)
 
 <PropSwitcher>:
+    kwargs: None
     padding: 5
     BoxLayout:
         size_hint_x: None
@@ -6755,6 +6756,9 @@
             plt_idx: ""
             id: abs
             on_release:
+                if root.kwargs:\
+                root.kwargs.update({"proportions": False}); app.stats_show_plot(self.plt_idx, root.kwargs)
+                else:\
                 app.stats_show_plot(self.plt_idx)
         Label:
             text: "Percentage"
@@ -6765,6 +6769,9 @@
             plt_idx: ""
             id: proportion
             on_release:
+                if root.kwargs:\
+                root.kwargs.update({"proportions": True}); app.stats_show_plot(self.plt_idx, root.kwargs)
+                else: \
                 app.stats_show_plot(self.plt_idx, {"proportions": True})
     Widget
 
@@ -6802,6 +6809,34 @@
             on_release:
                 app.stats_handle_outliers("view", root.ds_type)
     Widget
+
+
+<ManualStatsAnchor>:
+    anchor_x: "center"
+    anchor_y: "center"
+    BoxLayout:
+        size_hint_y: None
+        height: 100
+        orientation: "vertical"
+        padding: 20, 0, 20, 0
+        Label:
+            valign: "middle"
+            halign: "center"
+            text_size: self.size
+            markup: True
+            bold: True
+            color: .7, .7, .7, .7
+            text: "TriFusion detected a large number of taxa in the active data set and automatic computation of summary statistics has been turned off."
+        BoxLayout:
+            Widget
+            TFButton:
+                size_hint: None,None
+                size: 200, 30
+                text: "Trigger statistics"
+                on_release:
+                    app.statistics_show_summary(force=True)
+            Widget
+
 
 <StatsMoreBt>:
     anchor_x: "left"
@@ -7617,12 +7652,21 @@
     TFButtonOff:
         text: "Proportion of nucleotides or residues"
         on_release:
-            app.stats_select_plot(None, "Proportion of nucleotides or residues sp", "Proportion of nucleotides or residues")
+            app.stats_select_plot("Proportion of nucleotides or residues gn", "Proportion of nucleotides or residues sp", "Proportion of nucleotides or residues")
     HelpButton:
         on_release:
             app.dialog_general_info("info_nucleotide_proportion")
 
 ## Polymorphism and Variation
+<SequenceConservation>:
+    TFButtonOff:
+        text: "Sequence conservation"
+        on_release:
+            app.stats_select_plot("Sequence conservation gn", None, None)
+    HelpButton:
+        on_release:
+            app.dialog_general_info("gene_conservation")
+
 <SequenceSimilarity>:
     TFButtonOff:
         text: "Pairwise sequence similarity"
@@ -7631,7 +7675,6 @@
     HelpButton:
         on_release:
             app.dialog_general_info("pairwise_seq_similarity")
-
 
 <SegregatingSites>:
     TFButtonOff:

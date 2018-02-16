@@ -1,4 +1,47 @@
-# Changelog for upcoming 1.0.0 release
+# Changelog for upcoming 1.0.1.rc1 release
+
+## New Features
+
+### General
+
+- Limited taxa buttons in side panel to improve performance in data sets
+with a large number of taxa (> 1000).
+
+### Statistics
+
+- Added character (nucleotide/residue) proportion for single genes plot.
+This new plot can be viewed in absolute counts or proportion character
+proportion.
+- Added gene conservation plot for single genes.
+
+## Improvements
+
+### General
+
+- Taxa information popup from the side panel are now dynamically fetched
+and should be noticeable faster for large data sets.
+- Added version option to all CLI interfaces via the "-v" or "--version"
+options.
+
+### Orthology
+
+- Improved handling and sanity checking of input and output directories
+for orthomcl_pipeline CLI interface.
+
+### Statistics
+
+- Automatic calculation of summary statistics has been disabled for
+data sets with a large number of taxa (> 1000). Calculation of summary
+statistics can still be triggered manually.
+
+## Bug Fixes
+
+### Orthology
+
+- Fixed orthomcl_pipeline error when the input proteomes where not
+properly sanitized (i.e., contain whitespace).
+
+# Changelog for 1.0.0 release
 
 ## Bug fixes
 
@@ -6,7 +49,7 @@
 
 - Improved recognition of Nexus interleave information [1.0.0rc1.dev1].
 
-# Changelog for upcoming 1.0.0rc1 release
+# Changelog for 1.0.0rc1 release
 
 ## New Features
 

@@ -986,6 +986,10 @@ class StatsSummary(BoxLayout):
     pass
 
 
+class ManualStatsAnchor(AnchorLayout):
+    pass
+
+
 class NoDataLabel(Label):
     pass
 
@@ -1148,6 +1152,10 @@ class OptsGrid(GridLayout):
 
 
 class StatsBox(BoxLayout):
+    pass
+
+
+class SequenceConservation(StatsBox):
     pass
 
 

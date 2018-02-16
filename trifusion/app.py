@@ -597,6 +597,10 @@ class TriFusionApp(App):
             [bar_plot, "char_proportions.png"],
             "Proportion of nucleotides or residues sp":
             [stacked_bar_plot, "char_proportions_sp.png"],
+            "Proportion of nucleotides or residues gn":
+            [stacked_bar_plot, "char_proportions_gn.png"],
+            "Proportion of nucleotides or residues gn prop":
+            [stacked_bar_plot, "char_proportions_gn.png"],
             "Pairwise sequence similarity":
             [histogram_plot, "similarity_distribution.png"],
             "Pairwise sequence similarity sp":
@@ -632,7 +636,9 @@ class TriFusionApp(App):
             "Sequence size outliers":
             [outlier_densisty_dist, "Sequence_size_outliers.png"],
             "Sequence size outliers sp":
-            [outlier_densisty_dist, "Sequence_size_outliers_sp.png"]
+            [outlier_densisty_dist, "Sequence_size_outliers_sp.png"],
+            "Sequence conservation gn":
+            [stacked_bar_plot, "seq_conservation_gn.png"]
         }
     """
     Dictionary that maps the string identifier of statistics plot analyses
@@ -700,10 +706,21 @@ class TriFusionApp(App):
     tab of the sidepanel. Prevents the loading of all file Buttons in
     very large datasets.
     """
+    MAX_TAXON_BUTTON = NumericProperty(100)
+    """
+    Integer with the maximum number of taxa Buttons allowed in the "Taxa"
+    tab of the sidepanel. Prevents the loading of all taxon Buttons in
+    very large datasets.
+    """
     count_files = NumericProperty(0)
     """
     Integer that servers as a counter of the number of file Buttons currently
     loaded into the "Files" tab of the sidepanel.
+    """
+    count_taxon = NumericProperty(0)
+    """
+    Integer that servers as a counter of the number of taxon Buttons currently
+    loaded into the "Taxa" tab of the sidepanel.
     """
     MAX_PARTITION_BUTTON = NumericProperty(20)
     """
@@ -3793,6 +3810,12 @@ class TriFusionApp(App):
                     gl_wgt.add_widget(LoadMoreBt(tab=panel))
             except IndexError:
                 return
+        else:
+            try:
+                if self.alignment_list.taxa_names[self.count_taxon + 1]:
+                    gl_wgt.add_widget(LoadMoreBt(tab=panel))
+            except IndexError:
+                return
 
     def sidepanel_remove_moreopts(self):
         """
@@ -4330,6 +4353,12 @@ class TriFusionApp(App):
             grid = self.root.ids.partition_sl
             sv = self.root.ids.sv_partition
             max_its = self.MAX_PARTITION_BUTTON
+        elif tab == "taxa":
+            c = self.count_taxon
+            lst = self.alignment_list.taxa_names
+            grid = self.root.ids.taxa_sl
+            sv = self.root.ids.sv_sp
+            max_its = self.MAX_TAXON_BUTTON
 
         start = float(c)
         max_buttons = max_its + c
@@ -4341,9 +4370,14 @@ class TriFusionApp(App):
             try:
                 if tab == "files":
                     infile = basename(lst[c])
+                    self.count_files += 1
                     self.sidepanel_add_bts(infile, "Files")
+                elif tab == "taxa":
+                    self.count_taxon += 1
+                    self.sidepanel_add_bts(lst[c], "Taxa")
                 elif tab == "partitions":
                     part, fls = lst[c]
+                    self.count_partitions += 1
                     self.sidepanel_add_bts(part, "Partitions",
                                            partition_fls=fls)
                 c += 1
@@ -4418,10 +4452,21 @@ class TriFusionApp(App):
 
         for tx in sorted(self.active_taxa_list):
 
-            # Prevents duplicate taxa from being entered
-            if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
+            if self.count_taxon <= self.MAX_TAXON_BUTTON:
 
-                self.sidepanel_add_bts(tx, "Taxa")
+                self.count_taxon += 1
+
+                # Prevents duplicate taxa from being entered
+                if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
+                    self.sidepanel_add_bts(tx, "Taxa")
+
+            else:
+                # check if morebt is already present
+                if not [x for x in self.root.ids.taxa_sl.children if
+                        isinstance(x, LoadMoreBt)]:
+                    self.root.ids.taxa_sl.add_widget(LoadMoreBt(
+                        tab="taxa"))
+                return
 
     def repopulate_partitions(self):
         """
@@ -5047,6 +5092,10 @@ class TriFusionApp(App):
 
             if tx in self.alignment_list.taxa_names:
 
+                if tx not in self.original_tx_inf:
+                    self.original_tx_inf[tx] = self.get_taxon_information(
+                        tx, self.alignment_list.all_alignments)
+
                 # Get the information from the content list. This is done
                 # when calling the popup to avoid repeating this
                 # operation every time taxa  or files are added/removed.
@@ -5516,6 +5565,7 @@ class TriFusionApp(App):
         self.root.ids.file_lab.text = ""
         self.root.ids.partition_lab.text = ""
         self.count_files = 0
+        self.count_taxon = 0
         self.count_partitions = 0
 
         self.clear_process_input()
@@ -5572,6 +5622,7 @@ class TriFusionApp(App):
         self.active_file_list = []
         self.sequence_types = ""
         self.MAX_FILE_BUTTON = 20
+        self.MAX_TAXON_BUTTON = 100
         self.MAX_PARTITION_BUTTON = 20
         self.MAX_SEARCH = {"files": 20, "taxa": 20, "partitions": 20}
         self.found_items = {"files": [], "taxa": [], "partitions": []}
@@ -6761,6 +6812,11 @@ class TriFusionApp(App):
             self.current_table = td
             self.gene_table = table
 
+        def display_manual_trigger(plt_wgt):
+
+            plt_wgt.clear_widgets()
+            plt_wgt.add_widget(ManualStatsAnchor())
+
         def check_process(p, ldg_wgt, plt_wgt, ns, dt):
 
             try:
@@ -6890,6 +6946,15 @@ class TriFusionApp(App):
                     prepare_display(plot_wgt, scatter_wgt)
                     display_table(plot_wgt)
                 return
+
+        # Check if the number of active taxa surpasses a given threshold.
+        # If yes, then the summary statistics will not be automatically
+        # triggered. Instead, a button will be provided to get the statistics
+        # if the user wishes. This is done to prevent the app from freezing
+        # when the number of taxa is very large.
+        if len(taxa_set) > 1000 and not force:
+            display_manual_trigger(plot_wgt)
+            return
 
         # Prepare screen by removing any potential plot widgets and
         # changing some properties of the scatter layout
@@ -10245,23 +10310,36 @@ class TriFusionApp(App):
         # Storage of Options buttons separated by major analysis types
         wgts = {
             "General information":
-            [self.screen.ids.general_information, [SizeDistribution(),
-                                                   NucAAProportions(),
-                                                   TaxaDistribution()]],
+            [self.screen.ids.general_information, [
+                SizeDistribution(),
+                NucAAProportions(),
+                TaxaDistribution()]
+             ],
+
             "Missing Data":
-            [self.screen.ids.missing_data_opts, [GeneOccupancy(),
-                                                 MissingOrto(),
-                                                 MissingData(),
-                                                 CumulativeMissingOrto()]],
+            [self.screen.ids.missing_data_opts, [
+                GeneOccupancy(),
+                MissingOrto(),
+                MissingData(),
+                CumulativeMissingOrto()]
+             ],
+
             "Polymorphism and Variation":
-            [self.screen.ids.polymorphism_data_opts, [SequenceSimilarity(),
-                                                      SegregatingSites(),
-                                                      LVCorrelation(),
-                                                      AFS()]],
+            [self.screen.ids.polymorphism_data_opts, [
+                SequenceConservation(),
+                SequenceSimilarity(),
+                SegregatingSites(),
+                LVCorrelation(),
+                AFS()]
+             ],
+
             "Outlier detection":
-            [self.screen.ids.outlier_opts, [OutlierMissing(),
-                                            OutlierSegregating(),
-                                            OutlierSize()]]}
+            [self.screen.ids.outlier_opts, [
+                OutlierMissing(),
+                OutlierSegregating(),
+                OutlierSize()]
+             ]
+        }
 
         # Get active type
         main_gl = self.screen.ids.main_stats_opts
@@ -10284,7 +10362,8 @@ class TriFusionApp(App):
         Clock.schedule_once(
             lambda x: transfer_wgts(wgts[idx][1], wgts[idx][0]), .32)
 
-    def stats_write_plot(self, plot_data, footer, plt_idx):
+    def stats_write_plot(self, plot_data, footer, plt_idx,
+                         additional_args=None):
         """
         Provided with the data structure and a plt_idx string identifier,
         this function will create the plot file and app variable,
@@ -10364,9 +10443,11 @@ class TriFusionApp(App):
         # List of plots with a switcher between absolute values and
         # proportions
         prop_plots = [["Segregating sites",
-                       "Allele Frequency Spectrum"],
+                       "Allele Frequency Spectrum",
+                       "Proportion of nucleotides or residues gn"],
                       ["Segregating sites prop",
-                       "Allele Frequency Spectrum prop"]]
+                       "Allele Frequency Spectrum prop",
+                       "Proportion of nucleotides or residues gn prop"]]
 
         # List of plots with outlier footer
         outlier_plots = ["Missing data outliers",
@@ -10391,6 +10472,9 @@ class TriFusionApp(App):
         elif plt_idx in prop_plots[0] + prop_plots[1]:
 
             swt = PropSwitcher()
+
+            if additional_args:
+                swt.kwargs = additional_args
 
             try:
                 prop_idx = prop_plots[1][prop_plots[0].index(plt_idx)]
@@ -10659,11 +10743,19 @@ class TriFusionApp(App):
                                                   taxa_set_name)
 
         # List of gene specific plots. These are always removed
-        gene_specific = {"Pairwise sequence similarity gn":
-            "similarity_distribution_gn.png",
+        gene_specific = {
+            "Pairwise sequence similarity gn":
+                "similarity_distribution_gn.png",
             "Segregating sites gn": "segregating_sites_gn.png",
             "Allele Frequency Spectrum gn":
-            "allele_frequency_spectrum_gn.png"}
+                "allele_frequency_spectrum_gn.png",
+            "Sequence conservation gn":
+                "seq_conservation_gn.png",
+            "Proportion of nucleotides or residues gn":
+                "char_proportions_gn.png",
+            "Proportion of nucleotides or residues gn prop":
+                "char_proportions_gn.png"
+        }
 
         # Remove gene specific plots if they exist
         if plt_idx in gene_specific:
@@ -10709,7 +10801,7 @@ class TriFusionApp(App):
             args1=[self.alignment_list, plt_idx, file_set,
                    list(taxa_set), additional_args,
                    "use_ns"],
-            args2=[plt_idx])
+            args2=[plt_idx, additional_args])
 
         self.toggle_stats_panel(force_close=True)
 
@@ -11200,7 +11292,7 @@ class TriFusionApp(App):
             # Populates files and taxa contents
             self.update_tabs()
             # Gathers taxa  and file information
-            self.get_taxa_information()
+            # self.get_taxa_information()
 
             # Issue final dialog with the number of files successfully
             # loaded

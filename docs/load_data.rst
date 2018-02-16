@@ -16,9 +16,11 @@ Orthology - search
 
 **Proteome** files can be provided as the input for the Orthology search
 operation. These are **Fasta** formatted files, each with the amino acid
-sequences of a single species. TriFusion will interpret the name of the
-proteome file (minus extension) as the taxon name, so it is recommended that
-these files are named accordingly. The only requirements for the input files
+sequences of a single species. **TriFusion will interpret the name of the
+proteome file (minus extension) as the taxon name**, so it is recommended that
+these files are named accordingly (for instance, ``Aspergilus_fumigatus.fasta``
+will appear as ``Aspergilus_fumigatus`` in the final ortholog files).
+The only requirements for the input files
 is that the headers must have one or more fields separated by a “|” symbol,
 and at least one of those fields must be different for all sequences.
 
