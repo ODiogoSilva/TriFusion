@@ -91,6 +91,7 @@ def main_parser(arg, alignment_list):
     outfile = arg.outfile
     interleave = arg.interleave
     model_phy = arg.model_phy
+    upper_case = arg.upper_case
     # outgroup_taxa = arg.outgroup_taxa
 
     # Defining output file name
@@ -288,7 +289,8 @@ def main_parser(arg, alignment_list):
                              ima2_params=arg.ima2_params,
                              partition_file=True,
                              use_charset=True,
-                             pbar=pbar)
+                             pbar=pbar,
+                             upper_case=upper_case)
 
 
 def get_args(arg_list=None, unittest=False):
@@ -435,6 +437,10 @@ def get_args(arg_list=None, unittest=False):
                             default=False, help="Specify this  option to "
                             "write output files in interleave format (currently"
                             " only supported for nexus files")
+    formatting.add_argument("-u", "--upper-case", dest="upper_case",
+                            action="store_const", const=True, default=False,
+                            help="Write sequence data in upper case (the"
+                                 "default is lower case)")
     formatting.add_argument("--ima2-params", dest="ima2_params", nargs=4,
                             help="Provide 4 additional arguments needed to "
                             "write the output in a format compliant with "

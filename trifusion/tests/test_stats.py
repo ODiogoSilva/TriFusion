@@ -230,6 +230,12 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.assertTrue(self.aln_obj.characters_proportion_per_species())
 
+    def test_characters_proportion_gene(self):
+
+        self.assertTrue(self.aln_obj.characters_proportion_gene(
+            join(data_path, "BaseConc1.fas"), 10
+        ))
+
     def test_sequence_similarity(self):
 
         self.assertTrue(self.aln_obj.sequence_similarity())
@@ -242,6 +248,12 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.assertTrue(self.aln_obj.sequence_similarity_gene(
             join(data_path, "BaseConc1.fas"), 10))
+
+    def test_sequence_conservation(self):
+
+        self.assertTrue(self.aln_obj.sequence_conservation_gnp(
+            join(data_path, "BaseConc1.fas"), 10
+        ))
 
     def test_sequence_segregation(self):
 

@@ -6273,6 +6273,7 @@ class AlignmentList(Base):
         table_name = kwargs.get("table_name", self.master_table)
         ns = kwargs.get("ns_pipe", None)
         pbar = kwargs.get("pbar", None)
+        upper_case = kwargs.get("upper_case", None)
 
         # File object that will be used to write sequence data
         fh = None
@@ -6284,6 +6285,10 @@ class AlignmentList(Base):
         c = 1
         
         for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+            # Convert sequence data to upper case if option is specified
+            if upper_case:
+                seq = seq.upper()
 
             if aln_idx != prev_file:
                 prev_file = aln_idx
@@ -6423,6 +6428,7 @@ class AlignmentList(Base):
         ns = kwargs.get("ns_pipe", None)
         pbar = kwargs.get("pbar", None)
         output_dir = kwargs.get("output_dir", None)
+        upper_case = kwargs.get("upper_case", None)
 
         # File object that will be used to write sequence data
         fh = None
@@ -6446,6 +6452,9 @@ class AlignmentList(Base):
             for taxon, seq, p, aln_idx in self.cur.execute(
                 "SELECT taxon, seq, slice, aln_idx from [.interleavedata] "
                 "ORDER BY aln_idx, slice"):
+                
+                if upper_case:
+                    seq = seq.upper()
 
                 if prev_file != aln_idx:
                     fh, of = self._setup_newfile(
@@ -6493,6 +6502,9 @@ class AlignmentList(Base):
             c = 1
 
             for taxon, seq, aln_idx in self.iter_alignments(table_name):
+                
+                if upper_case:
+                    seq = seq.upper()
 
                 if aln_idx != prev_file:
                     prev_file = aln_idx
@@ -6703,6 +6715,7 @@ class AlignmentList(Base):
         output_dir = kwargs.get("output_dir", None)
         ns = kwargs.get("ns_pipe", None)
         pbar = kwargs.get("pbar", None)
+        upper_case = kwargs.get("upper_case", None)
 
         # File object that will be used to write sequence data
         fh = None
@@ -6723,6 +6736,9 @@ class AlignmentList(Base):
                     "SELECT taxon, seq, slice, aln_idx "
                     "FROM [.interleavedata] "
                     "ORDER BY aln_idx, slice"):
+
+                if upper_case:
+                    seq = seq.upper()
 
                 if aln_idx != prev_file:
 
@@ -6777,6 +6793,9 @@ class AlignmentList(Base):
             c = 1
 
             for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+                if upper_case:
+                    seq = seq.upper()
 
                 if aln_idx != prev_file:
 
@@ -6922,6 +6941,7 @@ class AlignmentList(Base):
         ns = kwargs.get("ns_pipe", None)
         output_dir = kwargs.get("output_dir", None)
         pbar = kwargs.get("pbar", None)
+        upper_case = kwargs.get("upper_case", None)
 
         # File object that will be used to write sequence data
         fh = None
@@ -6933,6 +6953,9 @@ class AlignmentList(Base):
         c = 1
 
         for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+            if upper_case:
+                seq = seq.upper()
 
             if aln_idx != prev_file:
 
@@ -6963,6 +6986,7 @@ class AlignmentList(Base):
         ns = kwargs.get("ns_pipe", None)
         pbar = kwargs.get("pbar", None)
         output_dir = kwargs.get("output_dir", None)
+        upper_case = kwargs.get("upper_case", None)
 
         # File object that will be used to write sequence data
         fh = None
@@ -6984,6 +7008,9 @@ class AlignmentList(Base):
                 "SELECT taxon, seq, part_name, part, aln_idx "
                 "FROM [.partitiondata] "
                 "ORDER BY aln_idx, part"):
+
+            if upper_case:
+                seq = seq.upper()
 
             if prev_idx != aln_idx:
                 fh, of = self._setup_newfile(fh, aln_idx, output_dir,
@@ -7026,6 +7053,7 @@ class AlignmentList(Base):
         ns = kwargs.get("ns_pipe", None)
         pbar = kwargs.get("pbar", None)
         output_dir = kwargs.get("output_dir", None)
+        upper_case = kwargs.get("upper_case", None)
         
         population_file = ima2_params[0]
         population_tree = ima2_params[1]
@@ -7063,6 +7091,9 @@ class AlignmentList(Base):
                 "SELECT taxon, seq, part_name, part, aln_idx "
                 "FROM [.partitiondata] "
                 "ORDER BY aln_idx, part"):
+
+            if upper_case:
+                seq = seq.upper()
 
             if prev_idx != aln_idx:
                 fh, of = self._setup_newfile(fh, aln_idx, output_dir,
@@ -7116,6 +7147,7 @@ class AlignmentList(Base):
         ns = kwargs.get("ns_pipe", None)
         pbar = kwargs.get("pbar", None)
         output_dir = kwargs.get("output_dir", None)
+        upper_case = kwargs.get("upper_case", None)
 
         # File object that will be used to write sequence data
         fh = None
@@ -7137,6 +7169,9 @@ class AlignmentList(Base):
                 "SELECT taxon, seq, part_name, part, aln_idx "
                 "FROM [.partitiondata] "
                 "ORDER BY aln_idx, part"):
+            
+            if upper_case:
+                seq = seq.upper()
 
             if prev_idx != aln_idx:
                 fh, of = self._setup_newfile(fh, aln_idx, output_dir,
@@ -7242,6 +7277,9 @@ class AlignmentList(Base):
             A ProgressBar object used to log the progress of TriSeq execution.
         table_name : string
             Name of the table from where the sequence data is fetched.
+        upper_case : bool
+            If True, sequence data will be written in upper case. Default is
+            lower case
         """
 
         output_file = kwargs.pop("output_file", None)
