@@ -185,7 +185,7 @@ def create_query_from_dict(protein_dict):
     return query_db
 
 
-def pair_search(usearch_bin, dest="./"):
+def pair_search(diamond_bin, dest="./"):
     """
     This will use USEARCH to search for translated transcript sequences
     identical to the original protein files
@@ -195,8 +195,8 @@ def pair_search(usearch_bin, dest="./"):
     db_path = join(dest, "transcripts.fas")
     out_path = join(dest, "pairs.out")
 
-    subprocess.Popen([usearch_bin,
-                      "-usearch_global",
+    subprocess.Popen([diamond_bin,
+                      "",
                       query_path,
                       "-db",
                       db_path,

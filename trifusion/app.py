@@ -907,14 +907,14 @@ class TriFusionApp(App):
     orto_export_dir = StringProperty("")
     """String with path to directory for ortholog exports."""
 
-    usearch_file = StringProperty("")
-    """String with path to usearch executable."""
-    usearch_db = StringProperty("goodProteins_db")
-    """String with name of usearch's database file."""
-    usearch_output = StringProperty("AllVsAll.out")
-    """String with name of the usearch output file."""
-    usearch_evalue = StringProperty("0.00001")
-    """String with evalue for usearch execution."""
+    diamond_file = StringProperty("")
+    """String with path to diamond executable."""
+    diamond_db = StringProperty("goodProteins_db")
+    """String with name of diamond's database file."""
+    diamond_output = StringProperty("AllVsAll.out")
+    """String with name of the diamond output file."""
+    diamond_evalue = StringProperty("0.00001")
+    """String with evalue for diamond execution."""
 
     # MCL/Groups attributes
     mcl_file = StringProperty("")
@@ -1345,24 +1345,7 @@ class TriFusionApp(App):
         """
 
         msg = {"mcl": b"mcl",
-               "usearch": "usearch"}
-
-        # If the OS is windows and the program is usearch, first check if the
-        # necessary DLL vcomp100.dll is present in the app's directory
-        if sys.platform in ["win32", "cygwin"] and program == "usearch":
-            flist = [x.lower() for x in os.listdir(self.user_data_dir)]
-            if "vcomp100.dll" not in flist:
-                self.dismiss_subpopup()
-                return self.dialog_warning(
-                    "Missing a DLL file",
-                    "You are providing the USEARCH executable but the"
-                    " vcomp100.dll file is missing. Please download it from"
-                    " the link below and place the DLL in"
-                    " C:\Users\<USER>\AppData\Roaming\\trifusion. Then"
-                    " try again.\n\n"
-                    "[ref=http://drive5.com/usearch/vcomp100.dll][b]"
-                    "[color=#37abc8ff]http://drive5.com/usearch/vcomp100.dll"
-                    "[/b][/color][/ref]")
+               "diamond": "diamond"}
 
         # First, try to execute the file directly from the path
         try:
@@ -1397,7 +1380,7 @@ class TriFusionApp(App):
 
     def _check_orto_programs(self):
         """
-        Checks if the USEARCH and MCL programs are installed and reachable.
+        Checks if the Diamond and MCL programs are installed and reachable.
         1. Check if executables are in the app_dir
         2. Check if executables are callable from subprocess
         3. If both checks fail, modify ortho_search_grid to highlight the
@@ -1488,45 +1471,30 @@ class TriFusionApp(App):
             fix_bt.bind(on_release=lambda x: self.dialog_mcl_fix())
             self.ortho_search_options.ids.mcl_fix_box.add_widget(fix_bt)
 
-        # Check USEARCH DLL in app_dir for windows only
-        if sys.platform in ["win32", "cygwin"] and \
-                not os.path.exists(join(self.user_data_dir, "vcomp100.dll")):
-            # Copy necessary DLL to app dir if it doesn't exist
-            try:
-                if platform.architecture()[0] == "64bit":
-                    shutil.copyfile(join(os.getcwd(), "data", "resources",
-                                         "usearch", "64bit", "vcomp100.dll"),
-                                    join(self.user_data_dir, "vcomp100.dll"))
-                else:
-                    shutil.copyfile(join(os.getcwd(), "data", "resources",
-                                         "usearch", "32bit", "vcomp100.dll"),
-                                    join(self.user_data_dir, "vcomp100.dll"))
-            except IOError:
-                pass
-
-        # CHeck USEARCH in app_dir
-        if os.path.exists(join(self.user_data_dir, "usearch")):
-            self.usearch_file = join(self.user_data_dir, "usearch")
+        # Check Diamond in app_dir
+        if os.path.exists(join(self.user_data_dir, "diamond")):
+            self.diamond_file = join(self.user_data_dir, "diamond")
         else:
             # If not in app_dir check is its reachable system-wide by
             # subprocess
             try:
-                subprocess.call(["usearch"])
-                self.usearch_file = "usearch"
+                subprocess.call("diamond")
+                self.diamond_file = "diamond"
             # MCL software not reachable. Modify attributes and
             # orto_search_grid
-            except OSError:
-                self.ortho_search_options.ids.usearch_check.background_src = \
+            except OSError as e:
+                print(os.getcwd())
+                self.ortho_search_options.ids.diamond_check.background_src = \
                     "data/backgrounds/red_noise.png"
-                self.ortho_search_options.ids.usearch_check_ico.icon_src = \
+                self.ortho_search_options.ids.diamond_check_ico.icon_src = \
                     "data/backgrounds/warning_icon.png"
-                self.ortho_search_options.ids.usearch_check_ico.icon_size = \
+                self.ortho_search_options.ids.diamond_check_ico.icon_size = \
                     (20, 20)
-                self.ortho_search_options.ids.usearch_check_lbl.text = \
-                    "USEARCH is not installed or reachable"
+                self.ortho_search_options.ids.diamond_check_lbl.text = \
+                    "Diamond is not installed or reachable"
                 fix_bt = FixButton()
-                fix_bt.bind(on_release=lambda x: self.dialog_usearch_fix())
-                self.ortho_search_options.ids.usearch_fix.add_widget(fix_bt)
+                fix_bt.bind(on_release=lambda x: self.dialog_diamond_fix())
+                self.ortho_search_options.ids.diamond_fix.add_widget(fix_bt)
 
     def dialog_mcl_fix(self):
         """
@@ -1538,15 +1506,15 @@ class TriFusionApp(App):
         self.show_popup(title="MCL troubleshooting...", content=content,
                         size=(400, 330), close_bt=True)
 
-    def dialog_usearch_fix(self):
+    def dialog_diamond_fix(self):
         """
-        Opens a dialog with information for fixing the missing USEARCH
+        Opens a dialog with information for fixing the missing Diamond
         executable
         """
 
-        content = DialogUSEARCHFix(cancel=self.dismiss_popup)
+        content = DialogDiamondFix(cancel=self.dismiss_popup)
 
-        self.show_popup(title="USEARCH troubleshooting...", content=content,
+        self.show_popup(title="Diamond troubleshooting...", content=content,
                         size=(400, 330), close_bt=True)
 
     def load_files_startup(self, file_list):
@@ -7407,9 +7375,9 @@ class TriFusionApp(App):
         self.ortho_dir = ""
         self.orto_export_dir = ""
 
-        self.usearch_db = "goodProteins_db"
-        self.usearch_output = "AllVsAll.out"
-        self.usearch_evalue = "0.00001"
+        self.diamond_db = "goodProteins_db"
+        self.diamond_output = "AllVsAll.out"
+        self.diamond_evalue = "0.00001"
 
         self.ortholog_prefix = "MyGroup"
         self.group_prefix = "group"
@@ -7418,7 +7386,7 @@ class TriFusionApp(App):
         self.orto_max_gene = 1
         self.orto_min_sp = 3
 
-        self.screen.ids.usearch_threads.text = "1"
+        self.screen.ids.search_threads.text = "1"
 
         self.ortho_search_options.ids.inflation_bt.text = "['3']"
 
@@ -7938,7 +7906,7 @@ class TriFusionApp(App):
             "nucleotide":
                 [protein2dna.convert_group,
                  [self.ortho_sqldb, self.cds_db, self.protein_db,
-                  self.active_group, self.usearch_file, output_dir]]}
+                  self.active_group, self.diamond_file, output_dir]]}
 
         # Get method and args
         m = method_store[export_idx]
@@ -8876,7 +8844,7 @@ class TriFusionApp(App):
             else:
                 mcl_string = "mcl"
 
-            # Copy new mcl_file to app_dir
+            # Copy new aux_files to app_dir
             if self._check_exec(path, "mcl"):
                 # Copy mcl executable to app dir
                 shutil.copyfile(path, join(self.user_data_dir, mcl_string))
@@ -8899,31 +8867,30 @@ class TriFusionApp(App):
                 self.dialog_floatcheck("The provided MCL executable does "
                                        "not seem to be correct.", t="error")
 
-        elif idx == "usearch_fix":
-            # Copy new usearch_file to app_dir
-            shutil.copyfile(path, join(self.user_data_dir, "usearch"))
-            self.usearch_file = join(self.user_data_dir, "usearch")
+        elif idx == "diamond_fix":
+            # Copy new diamond_file to app_dir
+            shutil.copyfile(path, join(self.user_data_dir, "diamond"))
+            self.diamond_file = join(self.user_data_dir, "diamond")
             # Make it executable
-            st = os.stat(self.usearch_file)
-            os.chmod(self.usearch_file, st.st_mode | stat.S_IEXEC)
-            if self._check_exec(self.usearch_file, "usearch"):
+            st = os.stat(self.diamond_file)
+            os.chmod(self.diamond_file, st.st_mode | stat.S_IEXEC)
+            if self._check_exec(self.diamond_file, "diamond"):
                 # Copy mcl executable to app dir
                 self.dismiss_all_popups()
                 # Set the orthology fields to green
-                self.ortho_search_options.ids.usearch_check.background_src =\
+                self.ortho_search_options.ids.diamond_check.background_src =\
                     "data/backgrounds/green_noise.png"
-                self.ortho_search_options.ids.usearch_check_ico.icon_src = \
+                self.ortho_search_options.ids.diamond_check_ico.icon_src = \
                     "data/backgrounds/check_icon.png"
-                self.ortho_search_options.ids.usearch_check_ico.icon_size = \
+                self.ortho_search_options.ids.diamond_check_ico.icon_size = \
                     (20, 16)
-                self.ortho_search_options.ids.usearch_check_lbl.text = \
-                    "USEARCH is installed and reachable"
-                self.ortho_search_options.ids.usearch_fix.clear_widgets()
+                self.ortho_search_options.ids.diamond_check_lbl.text = \
+                    "Diamond is installed and reachable"
+                self.ortho_search_options.ids.diamond_fix.clear_widgets()
             else:
-                os.remove(self.usearch_file)
-                self.usearch_file = ""
-                self.dialog_floatcheck("The provided USEARCH executable"
-                                       " does "
+                os.remove(self.diamond_file)
+                self.diamond_file = ""
+                self.dialog_floatcheck("The provided Diamond executable does "
                                        "not seem to be correct.", t="error")
 
         if auto_close:
@@ -9564,7 +9531,7 @@ class TriFusionApp(App):
 
         # Lists the idx that do not required file name
         idx_no_file = ["ortho_dir", "zorro_dir", "protein_db", "mcl_fix",
-                       "usearch_fix", "cds_db", "ima2_popfile"]
+                       "diamond_fix", "cds_db", "ima2_popfile"]
 
         # Maps idx for which an extension label is provided in the filechooser
         # The key is the idx, the value is the extension to appear in the label
@@ -9598,8 +9565,8 @@ class TriFusionApp(App):
                 "Choose destination directory for OrthoMCL output files...",
             "mcl_fix":
                 "Select the MCL executable...",
-            "usearch_fix":
-                "Select the USEARCH executable...",
+            "diamond_fix":
+                "Select the Diamond executable...",
             "ima2_popfile":
                 " Select the population file for IMa2 format"
         }
@@ -10059,14 +10026,14 @@ class TriFusionApp(App):
         if idx == "haplotype":
             content.ids.txt_dlg.text = self.hap_prefix
 
-        elif idx == "usearch_db":
-            content.ids.txt_dlg.text = self.usearch_db
+        elif idx == "diamond_db":
+            content.ids.txt_dlg.text = self.diamond_db
 
-        elif idx == "usearch_out":
-            content.ids.txt_dlg.text = self.usearch_output
+        elif idx == "diamond_out":
+            content.ids.txt_dlg.text = self.diamond_output
 
         elif idx == "evalue":
-            content.ids.txt_dlg.text = self.usearch_evalue
+            content.ids.txt_dlg.text = self.diamond_evalue
 
         elif idx == "orto_group":
             content.ids.txt_dlg.text = self.ortholog_prefix
@@ -10134,16 +10101,16 @@ class TriFusionApp(App):
             self.hap_prefix = text
             self.process_options.ids.hapbt.text = text
 
-        elif idx == "usearch_db":
-            self.usearch_db = text
+        elif idx == "diamond_db":
+            self.diamond_db = text
 
-        elif idx == "usearch_out":
-            self.usearch_output = text
+        elif idx == "diamond_out":
+            self.diamond_output = text
 
         elif idx == "evalue":
             try:
                 float(text)
-                self.usearch_evalue = text
+                self.diamond_evalue = text
             except ValueError:
                 return self.dialog_floatcheck(
                     "E-value must be a number", t="error")
@@ -11512,9 +11479,9 @@ class TriFusionApp(App):
                 "Please specify an output directory for orthology results",
                 t="error")
 
-        # Check for the USEARCH executable
-        if not self.usearch_file:
-            return self.dialog_usearch_fix()
+        # Check for the diamond executable
+        if not self.diamond_file:
+            return self.dialog_diamond_fix()
 
         # check for the MCL executable
         if not self.mcl_file:
@@ -11547,9 +11514,9 @@ class TriFusionApp(App):
             self.orto_min_sp
 
         content.ids.eval.text =\
-            "[b][size=18][color=37abc8ff]USEARCH e-value threshold:" \
+            "[b][size=18][color=37abc8ff]Diamond e-value threshold:" \
             "[/color][/size][/b] %s" %\
-            self.usearch_evalue
+            self.diamond_evalue
 
         content.ids.inflation.text = \
             "[b][size=18][color=37abc8ff]MCL inflation value(s):" \
@@ -11558,7 +11525,7 @@ class TriFusionApp(App):
 
         content.ids.threads.text = \
             "[b][size=18][color=37abc8ff]Threads :[/color][/size][/b] %s" %\
-            self.screen.ids.usearch_threads.text
+            self.screen.ids.search_threads.text
 
     def orthology_search_exec(self):
         """
@@ -11569,8 +11536,8 @@ class TriFusionApp(App):
         tasks_map = {"schema": "Database setup",
                      "adjust": "Adjusting Fasta files",
                      "filter": "Filtering Fasta files",
-                     "usearch": "Running USearch",
-                     "parse": "Parsing USearch output",
+                     "diamond": "Running Diamond",
+                     "parse": "Parsing Diamond output",
                      "pairs": "Obtaining pairs",
                      "mcl": "Running MCL",
                      "dump": "Dumping groups",
@@ -11687,7 +11654,7 @@ class TriFusionApp(App):
 
                     # Update the counter percentage
                     if shared_ns.total and shared_ns.counter and \
-                            current_op[0] != "usearch" and \
+                            current_op[0] != "diamond" and \
                                     current_op[0] != "mcl":
 
                         # Get percentage
@@ -11702,9 +11669,9 @@ class TriFusionApp(App):
                             content.ids[shared_ns.task].\
                                 ids.secondary_lbl.text = shared_ns.msg
 
-                    if current_op[0] == "usearch" or current_op[0] == "mcl":
+                    if current_op[0] == "diamond" or current_op[0] == "mcl":
 
-                        # Provide uncertain counter for usearch and mcl
+                        # Provide uncertain counter for diamond and mcl
                         # operations.
                         wgt_ref["counter"].text = "??"
 
@@ -11727,7 +11694,7 @@ class TriFusionApp(App):
                     # Set the protein database file
                     self.protein_db = join(self.ortho_dir,
                                            "backstage_files",
-                                           self.usearch_db)
+                                           self.diamond_db)
                     self.dialog_search_report(shared_ns.stats,
                                               shared_ns.groups)
                 except Exception as e:
@@ -11771,10 +11738,10 @@ class TriFusionApp(App):
                 self.active_proteome_files,
                 self.protein_min_len,
                 self.protein_max_stop,
-                self.usearch_file,
-                self.usearch_evalue,
-                self.screen.ids.usearch_threads.text,
-                self.usearch_output,
+                self.diamond_file,
+                self.diamond_evalue,
+                self.screen.ids.search_threads.text,
+                self.diamond_output,
                 self.mcl_file,
                 self.mcl_inflation,
                 self.ortholog_prefix,
@@ -11783,7 +11750,7 @@ class TriFusionApp(App):
                 self.orto_min_sp,
                 self.ortho_sqldb,
                 self.ortho_dir,
-                self.usearch_db))
+                self.diamond_db))
 
         p.daemon = True
         p.start()
@@ -12199,6 +12166,7 @@ def main():
         kv_file = "trifusion.kv"
 
     TriFusionApp(kv_file="trifusion.kv").run()
+
 
 if __name__ == "__main__":
     main()

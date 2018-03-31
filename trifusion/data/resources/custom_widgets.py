@@ -1283,7 +1283,7 @@ class DialogMCLFix(BoxLayout):
     cancel = ObjectProperty(None)
 
 
-class DialogUSEARCHFix(BoxLayout):
+class DialogDiamondFix(BoxLayout):
     cancel = ObjectProperty(None)
 
 

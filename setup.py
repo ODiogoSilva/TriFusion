@@ -13,7 +13,7 @@ with open('README.md') as f:
     readme = f.read()
 
 
-def mcl_data_files():
+def aux_data_files():
     """
     Automatically detects the platform and sets the appropriate mcl binary
     """
@@ -23,12 +23,13 @@ def mcl_data_files():
                  "trifusion/data/resources/mcl/windows/64bit/mcl64.exe",
                  "trifusion/data/resources/mcl/windows/64bit/cygwin1.dll",
                  "trifusion/data/resources/mcl/windows/32bit/mcl32.exe",
-                 "trifusion/data/resources/mcl/windows/32bit/cygwin1.dll"]
+                 "trifusion/data/resources/mcl/windows/32bit/cygwin1.dll",
+                 "trifusion/data/resources/diamond/linux/diamond"]
 
     return data_file
 
 
-mcl_file = mcl_data_files()
+aux_files = aux_data_files()
 
 setup(
     name="trifusion",
@@ -74,7 +75,7 @@ setup(
                  "Programming Language :: Python",
                  "Programming Language :: Python :: 2.7",
                  "Topic :: Scientific/Engineering :: Bio-Informatics"],
-    data_files=mcl_file,
+    data_files=aux_files,
     entry_points={
         "gui_scripts": [
             "TriFusion = trifusion.TriFusion:gui_exec"
