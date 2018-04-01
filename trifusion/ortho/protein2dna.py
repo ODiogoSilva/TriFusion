@@ -86,7 +86,7 @@ def translate(sequence):
     return aa_sequence
 
 
-def create_db(f_list, dest="./", ns=None):
+def create_db(f_list, diamond_bin, dest="./", ns=None):
     """
     Creates a fasta database file containing the translated protein sequences
     from the cds files. The final transcripts.fas file will be use
@@ -97,7 +97,8 @@ def create_db(f_list, dest="./", ns=None):
     :param f_list. List, containing the file names of the transcript files
     """
 
-    output_handle = open(join(dest, "transcripts.fas"), "w")
+    transcript_file = join(dest, "transcripts.fas")
+    output_handle = open(transcript_file, "w")
     id_dic = {}
 
     if ns:
@@ -135,6 +136,18 @@ def create_db(f_list, dest="./", ns=None):
                 seq += line.strip()
 
     output_handle.close()
+
+    # Make diamond database
+    diamong_mkdb = [
+        diamond_bin,
+        "makedb",
+        "--in",
+        transcript_file,
+        "-d",
+        join(dest, "transcripts")
+    ]
+
+    subprocess.Popen(diamong_mkdb).wait()
 
     return id_dic
 
@@ -192,19 +205,18 @@ def pair_search(diamond_bin, dest="./"):
     """
 
     query_path = join(dest, "query.fas")
-    db_path = join(dest, "transcripts.fas")
+    db_path = join(dest, "transcripts")
     out_path = join(dest, "pairs.out")
 
     subprocess.Popen([diamond_bin,
-                      "",
+                      "blastp",
+                      "-q",
                       query_path,
-                      "-db",
+                      "--db",
                       db_path,
-                      "-id",
-                      "1",
-                      "-maxaccepts",
-                      ".9",
-                      "-blast6out",
+                      "--id",
+                      "100",
+                      "--out",
                       out_path]).wait()
 
 
@@ -279,7 +291,7 @@ def convert_protein_file(pairs, group_obj, id_db, output_dir, shared_ns):
 
 
 def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
-                usearch_bin, output_dir, shared_namespace=None):
+                  diamond_bin, output_dir, shared_namespace=None):
     """
     Convenience function that wraps all required operations to convert protein
     to nucleotide files from a Group object
@@ -290,7 +302,7 @@ def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
         shared_namespace.missed = 0
         shared_namespace.good = 0
     # Create database
-    id_db = create_db(cds_file_list, output_dir, shared_namespace)
+    id_db = create_db(cds_file_list, diamond_bin, output_dir, shared_namespace)
 
     if shared_namespace:
         shared_namespace.act = "Creating query"
@@ -312,7 +324,7 @@ def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
     # Execute search
     if shared_namespace:
         shared_namespace.act = "Performing search"
-    pair_search(usearch_bin, output_dir)
+    pair_search(diamond_bin, output_dir)
 
     if shared_namespace:
         # Kill switch
