@@ -24,7 +24,9 @@ def aux_data_files():
                  "trifusion/data/resources/mcl/windows/64bit/cygwin1.dll",
                  "trifusion/data/resources/mcl/windows/32bit/mcl32.exe",
                  "trifusion/data/resources/mcl/windows/32bit/cygwin1.dll",
-                 "trifusion/data/resources/diamond/linux/diamond"]
+                 "trifusion/data/resources/diamond/linux/diamond",
+                 "trifusion/data/resources/diamond/windows/diamond.exe"
+                 ]
 
     return data_file
 
