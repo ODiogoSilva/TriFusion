@@ -497,10 +497,10 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
 
         if len(data) <= 10:
             c1 = c if c < 9 else c - 10
-            clr = cm.Vega10(c1, 1)
+            clr = cm.tab10(c1, 1)
         else:
             c1 = c if c < 19 else c - 20
-            clr = cm.Vega20c(c1, 1)
+            clr = cm.tab20(c1, 1)
 
         if legend:
             current_lgd = legend[c]
