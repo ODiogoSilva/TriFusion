@@ -41,6 +41,10 @@ statistics can still be triggered manually.
 - Fixed orthomcl_pipeline error when the input proteomes where not
 properly sanitized (i.e., contain whitespace).
 
+### Statistics
+
+- Fixed crash on stacked barplots due to deprecated vega colormaps.
+
 # Changelog for 1.0.0 release
 
 ## Bug fixes
