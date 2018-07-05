@@ -467,10 +467,10 @@ class GroupLight(object):
                         shared_namespace.counter += 1
 
                     if line.startswith(">"):
-                        seq_id = line.strip()[1:]
                         if seq != "":
                             c.execute("INSERT INTO [{}] VALUES (?, ?)".
                                       format(table_name), (seq_id, seq))
+                        seq_id = line.strip()[1:]
                         seq = ""
                     else:
                         seq += line.strip()
