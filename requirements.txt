@@ -1,0 +1,7 @@
+seaborn
+configparser
+pandas
+matplotlib
+numpy
+psutil
+scipy
