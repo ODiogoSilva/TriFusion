@@ -439,7 +439,8 @@ class TriFusionApp(App):
                                       ("variation_filter", False),
                                       ("gcoder_file", False),
                                       ("consensus_file", False),
-                                      ("consensus_single", False)])
+                                      ("consensus_single", False),
+                                      ("upper_case", False)])
     """
     Dictionary mapping secondary options to a bool value. Active secondary
     options have a True value.

@@ -179,6 +179,37 @@ class ProcessWriteTest(unittest.TestCase):
                                    output_file=self.output_file,
                                    interleave=True)
 
+    def test_write_upper_case_phy(self):
+
+        self.aln_obj.write_to_file(["phylip"], output_file=self.output_file,
+                                   upper_case=True)
+
+        flag = True
+        with open(self.output_file + ".phy") as fh:
+            next(fh)
+            for line in fh:
+                seq = line.strip().split()[1]
+                if not seq.isupper():
+                    flag = False
+
+        self.assertTrue(flag, True)
+
+    def test_write_upper_case_fasta(self):
+
+        self.aln_obj.write_to_file(["fasta"], output_file=self.output_file,
+                                   upper_case=True)
+
+        flag = True
+        with open(self.output_file + ".fas") as fh:
+            for line in fh:
+                if line.startswith(">") or line.strip() == "":
+                    continue
+                else:
+                    if not line.strip().isupper():
+                        flag = False
+
+        self.assertTrue(flag, True)
+
     def test_write_gap(self):
 
         self.aln_obj.write_to_file(["fasta", "phylip", "nexus", "mcmctree",

@@ -879,7 +879,8 @@ def process_execution(aln_list, file_set_name, file_list, active_file_list,
                 ima2_params=ima2_params,
                 use_nexus_models=use_nexus_models,
                 ns_pipe=ns,
-                table_name=table_name)
+                table_name=table_name,
+                upper_case=secondary_options["upper_case"])
 
         except IOError as e:
             logging.exception(e)

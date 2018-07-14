@@ -6079,7 +6079,23 @@
             DarkBox:
                 Label:
                     markup: True
-                    text: "[size=18][b]ZORRO weights support[/b][/size]\n[size=13]Concatenation only. Concatenates auxiliary Zorro weight files into a single *_zorro.out file."
+                    text: "[size=18][b]Sequence upper case[/b][/size]\n[size=13]Turn on to write sequence data as upper case (default is lower case)"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Switch:
+                    id: interleave
+                    size_hint_x: None
+                    width: root.process_bt_wdt
+                    on_active:
+                        app.update_process_switch("upper_case", self.active)
+
+            Hseparator
+
+            DarkBox:
+                Label:
+                    markup: True
+                    text: "[size=18][b]ZORRO weights support[/b][/size]\n[size=13]Concatenation only. Concatenates auxiliary Zorro weight files into a single *_zorro.out file"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
@@ -6160,7 +6176,7 @@
                 Label:
                     markup: True
                     id: test2
-                    text: "[size=18][b]Ignore missing data[/b][/size]\n[size=13] Sites containing missing data are removed before collapsing. This is effectively equivalent to setting filters to 0% of gap and missing data allowed. This may not be ideal for alignments with high proportion of missing data.[/size]"
+                    text: "[size=18][b]Ignore missing data[/b][/size]\n[size=13] Sites containing missing data are removed before collapsing. This is effectively equivalent to setting filters to 0% of gap and missing data allowed. This may not be ideal for alignments with high proportion of missing data[/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
