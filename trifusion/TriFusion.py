@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-# Needed for correct building with pyinstaller
-import scipy.misc
 
 reload(sys)
 sys.setdefaultencoding("utf8")
