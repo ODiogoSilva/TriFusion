@@ -40,6 +40,8 @@ statistics can still be triggered manually.
 
 - Fixed orthomcl_pipeline error when the input proteomes where not
 properly sanitized (i.e., contain whitespace).
+- Fixed issue where ortholog sequences were incorrectly retrieved from database
+under some circunstances.
 
 ### Statistics
 
