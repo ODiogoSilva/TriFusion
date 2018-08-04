@@ -4502,6 +4502,7 @@ class TriFusionApp(App):
                 pass
 
         for partition, fls in self.alignment_list.partitions.iter_files():
+            print(partition, fls)
 
             if self.count_partitions <= self.MAX_PARTITION_BUTTON:
 
