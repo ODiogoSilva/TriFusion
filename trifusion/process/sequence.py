@@ -5889,8 +5889,18 @@ class AlignmentList(Base):
 
                     for i in range(3):
 
-                        part_seq = seq[part_range[0][0]:
-                                       part_range[0][1] + 1][i::3]
+                        # This handles the case where the partition has a
+                        # contiguous range.
+                        if isinstance(part_range[0], tuple):
+                            part_seq = \
+                                seq[part_range[0][0]:part_range[0][1] + 1][i::3]
+                        # This handles the case where the partition has a
+                        # non-contiguous range.
+                        else:
+                            _part_seq = []
+                            for rg in part_range[0]:
+                                _part_seq.append(seq[rg[0]:rg[1] + 1][i::3])
+                            part_seq = "".join(_part_seq)
 
                         if part_seq.replace(aln.sequence_code[1], "") == "":
                             part_idx += 1
@@ -5909,7 +5919,17 @@ class AlignmentList(Base):
 
                 else:
 
-                    part_seq = seq[part_range[0][0]:part_range[0][1] + 1]
+                    # This handles the case where the partition has a contiguous
+                    # range.
+                    if isinstance(part_range[0], tuple):
+                        part_seq = seq[part_range[0][0]:part_range[0][1] + 1]
+                    # This handles the case where the partition has a
+                    # non-contiguous range.
+                    else:
+                        _part_seq = []
+                        for rg in part_range[0]:
+                            _part_seq.append(seq[rg[0]:rg[1] + 1])
+                        part_seq = "".join(_part_seq)
 
                     if part_seq.replace(aln.sequence_code[1], "") == "":
                         part_idx += 1
@@ -5944,7 +5964,16 @@ class AlignmentList(Base):
 
                     cname = "{}_codon_{}".format(name, str(i))
 
-                    part_len = (part_range[0][1] - part_range[0][0] + 1) / 3
+                    # This handles the case where the partition has a contiguous
+                    # range.
+                    if isinstance(part_range[0], tuple):
+                        part_len = (part_range[0][1] - part_range[0][0] + 1) / 3
+                    # This handles the case where the partition has a
+                    # non-contiguous range.
+                    else:
+                        part_len = 0
+                        for rg in part_range[0]:
+                            part_len += (rg[0] - rg[1] + 1) / 3
 
                     taxa_idx = taxa_idx_master[cname]
 
@@ -5960,8 +5989,16 @@ class AlignmentList(Base):
                     part_idx += 1
 
             else:
-
-                part_len = part_range[0][1] - part_range[0][0] + 1
+                # This handles the case where the partition has a contiguous
+                # range.
+                if isinstance(part_range[0], tuple):
+                    part_len = part_range[0][1] - part_range[0][0] + 1
+                # This handles the case where the partition has a
+                # non-contiguous range.
+                else:
+                    part_len = 0
+                    for rg in part_range[0]:
+                        part_len += rg[1] - rg[0] + 1
 
                 taxa_idx = taxa_idx_master[name]
 
@@ -5978,6 +6015,7 @@ class AlignmentList(Base):
         self.alignments = alns
         self.all_alignments = alns
         self.alignment_idx = rev_aln_idx
+        self.partitions = p
 
     def _get_part_names(self, get_type=False):
         """Returns partition name strings compliant with sqlite database
@@ -6563,12 +6601,12 @@ class AlignmentList(Base):
                         for i in lrange[1]:
                             fh.write("\tcharset %s_%s = %s-%s\\3;\n" %
                                            (name, i + 1, i + 1,
-                                            lrange[0][1] + 1))
+                                            lrange[0][0][1] + 1))
                             p += 1
                     else:
                         fh.write("\tcharset %s = %s-%s;\n" %
-                                       (name, lrange[0][0] + 1,
-                                        lrange[0][1] + 1))
+                                       (name, lrange[0][0][0] + 1,
+                                        lrange[0][0][1] + 1))
                         p += 1
 
                 fh.write("\tpartition part = %s: %s;\n\tset "
@@ -6793,6 +6831,8 @@ class AlignmentList(Base):
             c = 1
 
             for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+                print(taxon, seq)
 
                 if upper_case:
                     seq = seq.upper()
@@ -7310,12 +7350,15 @@ class AlignmentList(Base):
 
             filename = None
 
-            if output_file:
+            if output_file and len(self.alignments) == 1:
                 suffix = None
                 filename = output_file + self.format_ext[fmt]
             else:
                 suffix = conversion_suffix + output_suffix + \
                     self.format_ext[fmt]
+
+            if output_file and len(self.alignments) > 1:
+                kwargs["output_dir"] = output_file
 
             write_methods[fmt](suffix, filename, **kwargs)
 

@@ -59,8 +59,7 @@ class PartitonsTest(ExpectingTestCase):
             os.makedirs(temp_dir)
 
         self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
-        self.aln_obj.partitions.reset(cur=self.aln_obj.cur,
-                                      keep_alignments_range=True)
+        self.aln_obj.partitions.reset(cur=self.aln_obj.cur,)
 
     def tearDown(self):
 
@@ -146,7 +145,7 @@ class PartitonsTest(ExpectingTestCase):
         self.aln_obj = AlignmentList(concatenated_medium_nexus,
                                      sql_db=sql_db)
 
-        self.aln_obj.partitions.reset(keep_alignments_range=True)
+        self.aln_obj.partitions.reset()
 
         self.aln_obj.partitions.read_from_file(concatenated_small_par[0],
                                                no_aln_check=True)
@@ -219,8 +218,8 @@ class PartitonsTest(ExpectingTestCase):
         cont = True
         prev = 0
         for r in self.aln_obj.partitions.partitions.values():
-            if r[0][0] == prev:
-                prev = r[0][1] + 1
+            if r[0][0][0] == prev:
+                prev = r[0][0][1] + 1
             else:
                 cont = False
 
@@ -247,8 +246,8 @@ class PartitonsTest(ExpectingTestCase):
         cont = True
         prev = 0
         for r in self.aln_obj.partitions.partitions.values():
-            if r[0][0] == prev:
-                prev = r[0][1] + 1
+            if r[0][0][0] == prev:
+                prev = r[0][0][1] + 1
             else:
                 cont = False
 
@@ -258,8 +257,7 @@ class PartitonsTest(ExpectingTestCase):
 
         self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0],
                                                no_aln_check=True)
-        self.aln_obj.partitions.remove_partition(
-            file_name=join("trifusion/tests/data/", "BaseConc3.fas"))
+        self.aln_obj.partitions.remove_partition(file_name="BaseConc3.fas")
 
         # Check keys from _partitions, partitions_alignment and models
         key_data = [list(self.aln_obj.partitions.partitions.keys()),
@@ -276,8 +274,8 @@ class PartitonsTest(ExpectingTestCase):
         cont = True
         prev = 0
         for r in self.aln_obj.partitions.partitions.values():
-            if r[0][0] == prev:
-                prev = r[0][1] + 1
+            if r[0][0][0] == prev:
+                prev = r[0][0][1] + 1
             else:
                 cont = False
 
@@ -310,8 +308,8 @@ class PartitonsTest(ExpectingTestCase):
         ))
 
         for r in self.aln_obj.partitions.partitions.values():
-            if r[0][0] == prev:
-                prev = r[0][1] + 1
+            if r[0][0][0] == prev:
+                prev = r[0][0][1] + 1
             else:
                 cont = False
 
@@ -338,7 +336,7 @@ class PartitonsTest(ExpectingTestCase):
                                                no_aln_check=True)
 
         self.aln_obj.partitions.split_partition("BaseConc1.fas",
-                                                [(0, 50), (51, 84)],
+                                                [[0, 50], [51, 84]],
                                                 ["part1", "part2"])
 
         key_data = [list(self.aln_obj.partitions.partitions.keys()),
@@ -361,8 +359,9 @@ class PartitonsTest(ExpectingTestCase):
         ))
 
         for r in self.aln_obj.partitions.partitions.values():
-            if r[0][0] == prev:
-                prev = r[0][1] + 1
+            print(r)
+            if r[0][0][0] == prev:
+                prev = r[0][0][1] + 1
             else:
                 cont = False
 
@@ -403,10 +402,8 @@ class PartitonsTest(ExpectingTestCase):
                     self.aln_obj.partitions.partitions_alignments["two"]]
 
         self.assertEqual(key_data,
-                         [[join('trifusion/tests/data/', 'BaseConc1.fas')],
-                          [join('trifusion/tests/data/', x) for x in
-                           ['BaseConc3.fas', 'BaseConc2.fas',
-                            'BaseConc1.fas']]])
+                         [['BaseConc1.fas'],
+                          ['BaseConc1.fas', 'BaseConc3.fas', 'BaseConc2.fas']])
 
     def test_merge_and_custom_split2(self):
 
@@ -424,9 +421,8 @@ class PartitonsTest(ExpectingTestCase):
                     self.aln_obj.partitions.partitions_alignments["two"]]
 
         self.assertEqual(key_data,
-                         [[join('trifusion/tests/data/','BaseConc1.fas')],
-                          [join('trifusion/tests/data/', x) for x in
-                           ['BaseConc3.fas', 'BaseConc2.fas']]])
+                         [['BaseConc1.fas'],
+                          ['BaseConc3.fas', 'BaseConc2.fas']])
 
     def test_concat_custom_fileset_from_phy_partfile(self):
 

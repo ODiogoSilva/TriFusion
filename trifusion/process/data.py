@@ -376,26 +376,28 @@ class Partitions(object):
                 # which case an IndexError exception will be raised. This will
                 # handle that exception
                 try:
-                    fields = line.split(",")
+                    fields = line.split(",", 1)
                     # Get partition name as string
                     partition_name = fields[1].split("=")[0].strip()
                     # Get partition range as list of int
-                    partition_range_temp = fields[1].split("=")[1]
+                    pr_temp = fields[1].split("=")[1]
+
                     try:
                         partition_range = [
-                            int(x) - 1 for x in
-                            partition_range_temp.strip().split("-")]
+                            [int(i) - 1 for i in x.strip().split("-")]
+                            for x in pr_temp.strip().split(",")
+                        ]
 
                     except ValueError as e:
                         # A ValueError may be raise when there is a "."
                         # notation in the partition range. If so, convert
                         # the "." to the sequence lenght. If no sequence lenght
                         # has been provided raise another exception
-                        pr = partition_range_temp.strip().split("-")
+                        pr = pr_temp.strip().split("-")
                         if pr[1] == ".":
                             if self.partition_length:
-                                partition_range = [int(pr[0]) - 1,
-                                                   self.partition_length - 1]
+                                partition_range = [[int(pr[0]) - 1,
+                                                   self.partition_length - 1]]
                             else:
                                 return PartitionException(
                                     "The length of the locus must be "
@@ -410,7 +412,7 @@ class Partitions(object):
                         try:
                             file_name = \
                                 [x for x, y in self.alignments_range.items() if
-                                 y[0] <= partition_range[0] < y[1]]
+                                 y[0] <= partition_range[0][0] < y[1]]
                         except IndexError:
                             file_name = None
                     else:
@@ -437,7 +439,7 @@ class Partitions(object):
                         temp_ranges.append(res)
 
         # Sort partition ranges according to the first element of the range
-        temp_ranges.sort(key=lambda part: part[2][0])
+        temp_ranges.sort(key=lambda part: part[2][0][0])
 
         for _, file_name, _ in temp_ranges:
 
@@ -450,14 +452,16 @@ class Partitions(object):
             except TypeError:
                 pass
 
-        if not no_aln_check:
-            if temp_ranges[-1][2][-1] != self.partitions.values()[-1][0][1]:
-                return InvalidPartitionFile(
-                    "The complete range of the partition file does not match"
-                    " the current alignment set")
+        # if not no_aln_check:
+        #     if temp_ranges[-1][2][-1] != self.partitions.values()[-1][0][1]:
+        #         return InvalidPartitionFile(
+        #             "The complete range of the partition file does not match"
+        #             " the current alignment set")
 
         # Resets previous partitions (except alignments_range)
         self.reset(keep_alignments_range=True)
+
+        print(temp_ranges)
 
         for name, file_name, part_range in temp_ranges:
             # Add information to partitions storage
@@ -496,23 +500,23 @@ class Partitions(object):
             # If partition is defined using "." notation to mean full length
             if partition_full[1] == ".":
                 if self.partition_length:
-                    partition_range = [int(partition_full[0]) - 1,
-                                       self.partition_length - 1]
+                    partition_range = [[int(partition_full[0]) - 1,
+                                       self.partition_length - 1]]
                 else:
                     raise PartitionException("The length of the locus must be "
                                              "provided when partitions are "
                                              "defined using '.' notation to "
                                              "mean full length")
             else:
-                partition_range = [int(partition_full[0]) - 1,
-                                   int(partition_full[1]) - 1]
+                partition_range = [[int(partition_full[0]) - 1,
+                                   int(partition_full[1]) - 1]]
 
             # Check which alignment file contains the current partition
             if self.alignments_range:
                 try:
                     file_name = \
                         [x for x, y in self.alignments_range.items() if
-                         y[0] <= partition_range[0] < y[1]]
+                         y[0] <= partition_range[0][0] < y[1]]
                 except IndexError:
                     file_name = None
             else:
@@ -545,8 +549,9 @@ class Partitions(object):
         names = []
 
         for part, vals in self.partitions.items():
+            print(vals)
             if vals[1]:
-                names.extend([part + "_%s" % (x + 1) for x in vals[1]])
+                names.extend([part + "_%s" % (x[0] + 1) for x in vals[1]])
             else:
                 names.append(part)
 
@@ -607,7 +612,7 @@ class Partitions(object):
         """
 
         for part, vals in self.partitions.items():
-            lrange = vals[0]
+            lrange = vals[0][0]
             if lrange[1] == max_range:
                 return part
 
@@ -703,8 +708,8 @@ class Partitions(object):
             else:
                 self.models[name] = [[[]], [None], []]
 
-            self.partitions[name] = [(self.counter,
-                                      self.counter + (length - 1)), codon]
+            self.partitions[name] = [[[self.counter,
+                                      self.counter + (length - 1)]], codon]
             self.counter += length
             self.partition_length += length
 
@@ -712,29 +717,37 @@ class Partitions(object):
         elif locus_range:
 
             if use_counter:
-                locus_range = (self.counter,
-                               self.counter + locus_range[1] - locus_range[0])
+                locus_range[0] = [
+                    self.counter,
+                    self.counter + locus_range[0][1] - locus_range[0][0]
+                ]
+                for p, x in enumerate(locus_range[1:]):
+                    locus_range[p + 1] = [self.counter + x[1] - x[0]]
+            print(locus_range)
 
             # Add to or update alignments_range attribute. This will store the
             # original range of the alignment
-            if file_name and (isinstance(file_name, unicode) or
-                                  isinstance(file_name, str)):
+            if file_name and len(locus_range) == 1 and \
+                    (isinstance(file_name, unicode) or
+                     isinstance(file_name, str)):
+                print(self.alignments_range)
                 if file_name in self.alignments_range:
-                    if locus_range[0] < self.alignments_range[file_name][0]:
-                        self.alignments_range[file_name][0] = locus_range[0]
-                    if locus_range[1] > self.alignments_range[file_name][1]:
-                        self.alignments_range[file_name][1] = locus_range[1]
+                    if locus_range[0][0] < self.alignments_range[file_name][0][0]:
+                        self.alignments_range[file_name][0][0] = locus_range[0][0]
+                    if locus_range[0][1] > self.alignments_range[file_name][0][1]:
+                        self.alignments_range[file_name][0][1] = locus_range[0][1]
                 else:
-                    self.alignments_range[file_name] = list(locus_range)
+                    self.alignments_range[file_name] = locus_range
 
             # If the maximum range of the current partition is already included
             # in some other partition, and no codon partitions were provided
             # using the "codon" argument, then it should be an undefined codon
             # partition and should be added to an existing partition
-            if locus_range[1] <= self.counter and not codon:
+            if locus_range[0][1] <= self.counter and not codon and \
+                    len(locus_range) == 1:
 
                 # Find the parent partition
-                parent_partition = self._find_parent(locus_range[1])
+                parent_partition = self._find_parent(locus_range[0][1])
 
                 if not parent_partition:
                     raise InvalidPartitionFile(
@@ -765,7 +778,7 @@ class Partitions(object):
 
             # If the start of the current partition is already within the range
             # of a previous partitions, raise an exception
-            elif locus_range[0] < self.counter:
+            elif locus_range[-1][0] < self.counter:
                 raise InvalidPartitionFile(
                     "Badly formatted partition with range [{}-{}] starts "
                     "inside the range of a previous partitions ({})".format(
@@ -795,11 +808,11 @@ class Partitions(object):
                         self.partitions_alignments[name] = [
                             file_name if file_name else name]
 
-                self.partitions[name] = [(locus_range[0], locus_range[1]),
+                self.partitions[name] = [locus_range,
                                          codon]
 
-                self.counter = locus_range[1] + 1
-                self.partition_length = locus_range[1] + 1
+                self.counter = locus_range[-1][1] + 1
+                self.partition_length = locus_range[-1][1] + 1
 
         fl_name = file_name if file_name else name
         if isinstance(fl_name, list):
@@ -1008,6 +1021,10 @@ class Partitions(object):
     @staticmethod
     def _teste_range_overlap(ref, r2):
 
+        print(r2)
+
+        r2 = r2[0]
+
         # Complete inclusion of r2 in ref
         if r2[0] >= ref[0] and r2[1] <= ref[1]:
             return True
@@ -1041,7 +1058,7 @@ class Partitions(object):
 
             # Add new partitions
             for n, r in zip(new_names, new_range):
-                self.partitions[n] = [r, False]
+                self.partitions[n] = [[r], False]
                 # Create new partitions_alignments. Keep the original alignment
                 # file for both
                 self.models[n] = [[[]], [None], []]
@@ -1063,7 +1080,7 @@ class Partitions(object):
                 new_range = self.merged_files[aln]
                 # Add new partitions
                 aln_name = basename(aln)
-                self.partitions[aln_name] = [new_range, False]
+                self.partitions[aln_name] = [[new_range], False]
                 self.partitions_alignments[aln_name] = [aln]
                 self.models[aln_name] = [[[]], [None], []]
 
@@ -1109,6 +1126,8 @@ class Partitions(object):
         counter = 0
         for p, res in enumerate(lst):
 
+            print(p, res)
+
             if sort_types:
                 vals = self.partitions[res]
                 nm = res
@@ -1119,20 +1138,20 @@ class Partitions(object):
             # Check if the starting position of the next partition is the
             # same as the counter. If so, add the vals to the new dict.
             # Else, correct the ranges based on the counter
-            if vals[0][0] == counter:
+            if vals[0][0][0] == counter:
                 new_dic[nm] = vals
-                counter = vals[0][1] + 1
+                counter = vals[0][0][1] + 1
             else:
                 # Get lenght of the partition
-                part_len = vals[0][1] - vals[0][0]
+                part_len = vals[0][0][1] - vals[0][0][0]
                 # Create corrected range
-                part_range = (counter, counter + part_len)
+                part_range = [counter, counter + part_len]
                 # Correct codon position start if any
                 if vals[1]:
                     codon = [counter, counter + 1, counter + 2]
                 else:
                     codon = False
-                new_dic[nm] = [part_range, codon]
+                new_dic[nm] = [[part_range], codon]
                 counter = counter + part_len + 1
 
         return new_dic
@@ -1260,12 +1279,17 @@ class Partitions(object):
                 if self.get_sequence_type(p) == seq_type:
                     # Change the partition in self.partitions to have codon
                     # partitions
-                    st_idx = self.partitions[p][0][0]
+                    # This handles the case where the partition has a contiguous
+                    # range.
+                    if isinstance(self.partitions[p][0], tuple):
+                        st_idx = self.partitions[p][0][0]
+                    # This handles the case where the partition has a
+                    # non-contiguous range.
+                    else:
+                        st_idx = self.partitions[p][0][0][0]
                     self.partitions[p][1] = [st_idx + x for x in range(3)]
                     self.models[p][1] = models
                     self.models[p][2] = links
-
-
 
     def write_to_file(self, output_format, output_file, model="LG"):
         """Writes partitions to a file.
@@ -1288,7 +1312,11 @@ class Partitions(object):
         if output_format == "raxml":
             outfile_handle = open(output_file + ".part.File", "w")
             for part, rge in self.partitions.items():
-                partition_range = "-".join([str(x + 1) for x in rge[0]])
+                _partition_range = []
+                for x in rge[0]:
+                    _partition_range.append("{}-{}".format(x[0] + 1,
+                                                           x[1] + 1))
+                partition_range = ",".join(_partition_range)
                 outfile_handle.write("%s, %s = %s\n" % (model,
                                                         part,
                                                         partition_range))
@@ -1298,9 +1326,13 @@ class Partitions(object):
         elif output_format == "nexus":
             outfile_handle = open(output_file + ".charset", "w")
             for part, rge in self.partitions.items():
-                outfile_handle.write("charset %s = %s;\n" % (
-                                     part,
-                                     "-".join([str(x + 1) for x in rge[0]])))
+                for x in rge[0]:
+
+                    outfile_handle.write(
+                        "charset %s = %s-%s;\n" % (
+                            part, x[0] + 1, x[1] + 1
+                        )
+                    )
 
             outfile_handle.close()
 
