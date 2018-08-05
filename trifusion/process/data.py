@@ -461,8 +461,6 @@ class Partitions(object):
         # Resets previous partitions (except alignments_range)
         self.reset(keep_alignments_range=True)
 
-        print(temp_ranges)
-
         for name, file_name, part_range in temp_ranges:
             # Add information to partitions storage
             try:
@@ -549,7 +547,6 @@ class Partitions(object):
         names = []
 
         for part, vals in self.partitions.items():
-            print(vals)
             if vals[1]:
                 names.extend([part + "_%s" % (x[0] + 1) for x in vals[1]])
             else:
@@ -723,14 +720,12 @@ class Partitions(object):
                 ]
                 for p, x in enumerate(locus_range[1:]):
                     locus_range[p + 1] = [self.counter + x[1] - x[0]]
-            print(locus_range)
 
             # Add to or update alignments_range attribute. This will store the
             # original range of the alignment
             if file_name and len(locus_range) == 1 and \
                     (isinstance(file_name, unicode) or
                      isinstance(file_name, str)):
-                print(self.alignments_range)
                 if file_name in self.alignments_range:
                     if locus_range[0][0] < self.alignments_range[file_name][0][0]:
                         self.alignments_range[file_name][0][0] = locus_range[0][0]
@@ -1021,8 +1016,6 @@ class Partitions(object):
     @staticmethod
     def _teste_range_overlap(ref, r2):
 
-        print(r2)
-
         r2 = r2[0]
 
         # Complete inclusion of r2 in ref
@@ -1125,8 +1118,6 @@ class Partitions(object):
         new_dic = OrderedDict()
         counter = 0
         for p, res in enumerate(lst):
-
-            print(p, res)
 
             if sort_types:
                 vals = self.partitions[res]

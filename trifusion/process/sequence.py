@@ -6449,7 +6449,7 @@ class AlignmentList(Base):
                         self.partitions.get_sequence_type(name)
                     partition_file.write(
                         "{}, {} = {}-{}\n".format(
-                            model, name, lrange[0][0] + 1, lrange[0][1] + 1))
+                            model, name, lrange[0][0][0] + 1, lrange[0][0][1] + 1))
 
             partition_file.close()
 
@@ -6831,8 +6831,6 @@ class AlignmentList(Base):
             c = 1
 
             for taxon, seq, aln_idx in self.iter_alignments(table_name):
-
-                print(taxon, seq)
 
                 if upper_case:
                     seq = seq.upper()
