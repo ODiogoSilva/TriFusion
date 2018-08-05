@@ -282,8 +282,8 @@ class TriSeqTest(unittest.TestCase):
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
-        self.assertTrue(os.path.exists("consensus.fas"))
-        os.remove("consensus.fas")
+        self.assertTrue(os.path.exists(join("consensus","consensus.fas")))
+        shutil.rmtree("consensus")
 
     def test_missing_filter_perc_val(self):
 
