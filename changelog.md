@@ -7,6 +7,12 @@
 - Limited taxa buttons in side panel to improve performance in data sets
 with a large number of taxa (> 1000).
 
+### Process
+
+- Added support for non-contiguous partition files in RAXML format.
+- Added support for reverse concatenation of multiple non-contiguous partitions
+without the need to specify the whole alignment in the partitions.
+
 ### Statistics
 
 - Added character (nucleotide/residue) proportion for single genes plot.
