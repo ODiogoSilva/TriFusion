@@ -962,7 +962,7 @@ def sliding_window(data, window_size, ax_names=None, table_header=None,
 
     fig, ax = plt.subplots()
 
-    ax.set_axis_bgcolor("#f2f2f2")
+    ax.set_facecolor("#f2f2f2")
 
     xnew = np.linspace(x.min(), x.max(), 100)
     xsmooth = spline(x, data, xnew)
