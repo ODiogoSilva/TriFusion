@@ -59,6 +59,7 @@ setup(
     description=("Streamlining phylogenomic data gathering, processing and "
                  "visualization"),
     long_description=readme,
+    long_description_content_type="text/markdown",
     url="https://github.com/ODiogoSilva/TriFusion",
     author="Diogo N Silva",
     author_email="odiogosilva@gmail.com",

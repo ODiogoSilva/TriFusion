@@ -52,6 +52,8 @@ under some circunstances.
 ### Statistics
 
 - Fixed crash on stacked barplots due to deprecated vega colormaps.
+- Fixed crash on sliding window plot for pairwise sequence similarity and
+segregating sites due to matplotlib update.
 
 # Changelog for 1.0.0 release
 
