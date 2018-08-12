@@ -1070,10 +1070,12 @@ class Partitions(object):
 
             for aln in self.partitions_alignments[name]:
                 #  Get original range of alignment file
-                new_range = self.merged_files[aln]
+                _new_range = self.merged_files[aln]
+                n_range = _new_range[0] if len(_new_range) == 1 else \
+                    _new_range
                 # Add new partitions
                 aln_name = basename(aln)
-                self.partitions[aln_name] = [[new_range], False]
+                self.partitions[aln_name] = [[n_range], False]
                 self.partitions_alignments[aln_name] = [aln]
                 self.models[aln_name] = [[[]], [None], []]
 
