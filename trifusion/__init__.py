@@ -181,7 +181,7 @@ information and generate the plot.
 """
 
 __version__ = "1.0.1"
-__build__ = "140718"
+__build__ = "120818"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves", "Ana Vieira"]
