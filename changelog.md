@@ -1,4 +1,13 @@
-# Changelog for upcoming 1.0.1.rc1 release
+# Changelog for upcoming 1.0.2 release
+
+## Bug fixes
+
+### Process
+
+- Fixed reverse concatenation of non-contiguous and potentially overlapping 
+partitions.
+
+# Changelog for 1.0.1 release
 
 ## New Features
 

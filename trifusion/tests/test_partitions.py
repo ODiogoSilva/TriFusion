@@ -130,13 +130,6 @@ class PartitonsTest(ExpectingTestCase):
                                  "BaseConc7.fas"],
                                 595])
 
-    def test_bad_dot_notation(self):
-
-        e = self.aln_obj.partitions.read_from_file(bad_dot_notation_nex[0],
-                                                   no_aln_check=True)
-
-        self.assertTrue(isinstance(e, InvalidPartitionFile))
-
     def test_import_new_partscheme(self):
 
         self.aln_obj.clear_alignments()

@@ -468,6 +468,7 @@ class Partitions(object):
                                    locus_range=part_range,
                                    file_name=file_name)
             except InvalidPartitionFile as e:
+                print(e)
                 return e
 
     def read_from_nexus_string(self, nx_string, file_name=None,
@@ -734,21 +735,21 @@ class Partitions(object):
                 else:
                     self.alignments_range[file_name] = locus_range
 
+            # Find the parent partition
+            parent_partition = self._find_parent(locus_range[0][1])
+
             # If the maximum range of the current partition is already included
             # in some other partition, and no codon partitions were provided
             # using the "codon" argument, then it should be an undefined codon
             # partition and should be added to an existing partition
             if locus_range[0][1] <= self.counter and not codon and \
-                    len(locus_range) == 1:
+                    len(locus_range) == 1 and parent_partition:
 
-                # Find the parent partition
-                parent_partition = self._find_parent(locus_range[0][1])
-
-                if not parent_partition:
-                    raise InvalidPartitionFile(
-                        "Could not find parent partition of {}. Check the"
-                        " ranges of your partitions to ensure no range "
-                        "overlaps".format(name))
+                # if not parent_partition:
+                #     raise InvalidPartitionFile(
+                #         "Could not find parent partition of {}. Check the"
+                #         " ranges of your partitions to ensure no range "
+                #         "overlaps".format(name))
 
                 # If no codon partition is present in the parent partition,
                 # create one
@@ -773,7 +774,7 @@ class Partitions(object):
 
             # If the start of the current partition is already within the range
             # of a previous partitions, raise an exception
-            elif locus_range[-1][0] < self.counter:
+            elif locus_range[-1][0] < self.counter and parent_partition:
                 raise InvalidPartitionFile(
                     "Badly formatted partition with range [{}-{}] starts "
                     "inside the range of a previous partitions ({})".format(
