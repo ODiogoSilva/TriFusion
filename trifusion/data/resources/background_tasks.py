@@ -355,10 +355,10 @@ def background_export_groups(f, nm, a):
 
 
 def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
-                   protein_max_stop, usearch_file, usearch_evalue,
-                   usearch_threads, usearch_output, mcl_file, mcl_inflation,
+                   protein_max_stop, diamond_path, evalue,
+                   diamond_threads, search_output, mcl_file, mcl_inflation,
                    ortholog_prefix, group_prefix, orto_max_gene,
-                   orto_min_sp, sqldb, ortho_dir, usearch_db):
+                   orto_min_sp, sqldb, ortho_dir, protein_db):
     """Execution of the orthology search pipeline.
 
 
@@ -379,13 +379,13 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         Minimum lenght of protein sequences.
     protein_max_stop : int
         Maximum percentage of stop codons allowed.
-    usearch_file : str
+    diamond_path : str
         Path to usearch executbale.
-    usearch_evalue: int or float
-        Evalue for usearch execution.
-    usearch_threads : int
-        Number of threads used by usearch execution.
-    usearch_output : str
+    evalue: int or float
+        Evalue for search execution.
+    diamond_threads : int
+        Number of threads used by diamond search execution.
+    search_output : str
         Name of usearch's output file.
     mcl_file : str
         Path to the mcl executable.
@@ -406,7 +406,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         Path to the sqlite database.
     ortho_dir : str
         Path to the directory where the results will be generated.
-    usearch_db : str
+    protein_db : str
         Name of the file used as database for usearch.
     """
 
@@ -429,25 +429,26 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         nm.task = "filter"
         ortho_pipe.filter_fasta(protein_min_len, protein_max_stop,
-                                usearch_db, ortho_dir, nm)
+                                protein_db, ortho_dir, nm)
         nm.finished_tasks = ["schema", "adjust", "filter"]
 
         if nm.stop:
             raise KillByUser("")
 
-        nm.task = "usearch"
-        ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue, ortho_dir,
-                                    usearch_threads, usearch_output,
-                                    usearch_bin=usearch_file, nm=nm)
-        nm.finished_tasks = ["schema", "adjust", "filter", "usearch"]
+        nm.task = "diamond"
+        ortho_pipe.make_diamond_db(ortho_dir, protein_db, diamond_path, nm=nm)
+        ortho_pipe.allvsall_search(protein_db, evalue, ortho_dir,
+                                   diamond_threads, search_output,
+                                   diamond_bin=diamond_path, nm=nm)
+        nm.finished_tasks = ["schema", "adjust", "filter", "diamond"]
 
         if nm.stop:
             raise KillByUser("")
 
         nm.task = "parse"
-        ortho_pipe.blast_parser(usearch_output, ortho_dir,
+        ortho_pipe.blast_parser(search_output, ortho_dir,
                                 db_dir=temp_dir, nm=nm)
-        nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse"]
+        nm.finished_tasks = ["schema", "adjust", "filter", "diamond", "parse"]
 
         if nm.stop:
             raise KillByUser("")
@@ -455,7 +456,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.task = "pairs"
         ortho_pipe.pairs(temp_dir, nm=nm)
         ortho_pipe.dump_pairs(temp_dir, ortho_dir, nm=nm)
-        nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse",
+        nm.finished_tasks = ["schema", "adjust", "filter", "diamond", "parse",
                              "pairs"]
 
         if nm.stop:
@@ -463,7 +464,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         nm.task = "mcl"
         ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file, nm=nm)
-        nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse",
+        nm.finished_tasks = ["schema", "adjust", "filter", "diamond", "parse",
                              "pairs", "mcl"]
 
         if nm.stop:
@@ -472,7 +473,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.task = "dump"
         ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
                               group_prefix, ortho_dir, nm=nm)
-        nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse",
+        nm.finished_tasks = ["schema", "adjust", "filter", "diamond", "parse",
                              "pairs", "mcl", "dump"]
 
         if nm.stop:
@@ -485,7 +486,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             orto_max_gene,
             orto_min_sp,
             sqldb + "_out",
-            join(ortho_dir, "backstage_files", usearch_db),
+            join(ortho_dir, "backstage_files", protein_db),
             temp_dir,
             ortho_dir, nm=nm)
         nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse",

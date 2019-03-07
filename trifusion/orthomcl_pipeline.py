@@ -125,7 +125,7 @@ def check_unique_field(proteome_file, verbose=False, nm=None):
 def prep_fasta(proteome_file, code, unique_id, dest, verbose=False, nm=None):
 
     if verbose:
-        print_col("\t Preparing file for USEARCH", GREEN, 1)
+        print_col("\t Preparing file for protein search", GREEN, 1)
 
     # Storing header list to check for duplicates
     header_list = []
@@ -245,34 +245,64 @@ def filter_fasta(min_len, max_stop, db, dest, nm=None):
     FilterFasta.orthomcl_filter_fasta(cp_dir, min_len, max_stop, db, dest, nm)
 
 
-def allvsall_usearch(goodproteins, evalue, dest, cpus, usearch_outfile,
-                     usearch_bin="usearch", nm=None):
+def make_diamond_db(dest, goodproteins, diamond_bin="diamond", nm=None):
 
-    print_col("Perfoming USEARCH All-vs-All (may take a while...)", GREEN, 1)
+    print_col("Creating Diamond database", GREEN, 1)
 
-    # FNULL = open(os.devnull, "w")
-    usearch_cmd = [usearch_bin,
-                   "-ublast",
-                   join(dest, "backstage_files", goodproteins),
-                   "-db",
-                   join(dest, "backstage_files", goodproteins),
-                   "-blast6out",
-                   join(dest, "backstage_files", usearch_outfile),
-                   "-evalue", str(evalue),
-                   "--maxaccepts",
-                   "0",
-                   "-threads",
-                   str(cpus)]
+    diamong_mkdb = [
+        diamond_bin,
+        "makedb",
+        "--in",
+        join(dest, "backstage_files", goodproteins),
+        "-d",
+        join(dest, "backstage_files", "database")
+    ]
 
     if nm:
         # The subprocess.Popen handler cannot be passed directly in Windows
         # due to pickling issues. So I pass the pid of the process instead.
-        subp = subprocess.Popen(usearch_cmd)
+        subp = subprocess.Popen(diamong_mkdb)
         nm.subp = subp.pid
         subp.wait()
         nm.subp = None
     else:
-        _ = subprocess.Popen(usearch_cmd).wait()
+        _ = subprocess.Popen(diamong_mkdb).wait()
+
+
+def allvsall_search(goodproteins, evalue, dest, cpus, usearch_outfile,
+                    diamond_bin="diamond", nm=None):
+
+    print_col("Perfoming Diamond All-vs-All (may take a while...)", GREEN, 1)
+
+    diamond_cmd = [
+        diamond_bin,
+        "blastp",
+        "-d",
+        join(dest, "backstage_files", "database"),
+        "-q",
+        join(dest, "backstage_files", goodproteins),
+        "-o",
+        join(dest, "backstage_files", usearch_outfile),
+        "--sensitive",
+        "--threads",
+        str(cpus),
+        "--evalue",
+        str(evalue)
+    ]
+
+    print_col("\tCommand: {}".format(" ".join(diamond_cmd)), GREEN, 1)
+
+    if nm:
+        # The subprocess.Popen handler cannot be passed directly in Windows
+        # due to pickling issues. So I pass the pid of the process instead.
+        # subp = subprocess.Popen(usearch_cmd)
+        subp = subprocess.Popen(diamond_cmd)
+        nm.subp = subp.pid
+        subp.wait()
+        nm.subp = None
+    else:
+        # _ = subprocess.Popen(usearch_cmd).wait()
+        _ = subprocess.Popen(diamond_cmd).wait()
 
 
 def blast_parser(usearch_ouput, dest, db_dir, nm):
@@ -610,8 +640,9 @@ def main():
             adjust_fasta(proteome_files, output_dir)
             filter_fasta(min_length, max_percent_stop, database_name,
                          output_dir)
-            allvsall_usearch(database_name, evalue_cutoff, output_dir, cpus,
-                             usearch_out_name, usearch_bin=usearch_bin)
+            make_diamond_db(output_dir, database_name)
+            allvsall_search(database_name, evalue_cutoff, output_dir, cpus,
+                            usearch_out_name, usearch_bin=usearch_bin)
             blast_parser(usearch_out_name, output_dir, tmp_dir, None)
             pairs(tmp_dir)
             dump_pairs(tmp_dir, output_dir)
@@ -628,8 +659,9 @@ def main():
             install_schema(tmp_dir)
             filter_fasta(min_length, max_percent_stop, database_name,
                          output_dir)
-            allvsall_usearch(database_name, evalue_cutoff, output_dir, cpus,
-                             usearch_out_name, usearch_bin=usearch_bin)
+            make_diamond_db(output_dir, database_name)
+            allvsall_search(database_name, evalue_cutoff, output_dir, cpus,
+                            usearch_out_name, usearch_bin=usearch_bin)
             blast_parser(usearch_out_name, output_dir, tmp_dir, None)
             pairs(tmp_dir)
             dump_pairs(tmp_dir, output_dir)
